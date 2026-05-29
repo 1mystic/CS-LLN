@@ -90,20 +90,22 @@
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
           <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:-0.02em;">CS-LLN</span>
           <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;">Inspector</span>
-          <span class="badge badge--muted">STUDENT PERFORMANCE</span>
+          <span class="badge badge--muted" id="ds-badge">IRIS</span>
         </div>
-        <div class="page-header__sub">
-          Context-Shifting Log-Linear Network — live inference on student academic features.
-          Adjust feature sliders to see how interaction terms drive the classification in real time.
+        <div class="page-header__sub" id="ds-desc">
+          Context-Shifting Log-Linear Network — select a dataset below and adjust feature sliders to see real-time CS-LLN classification with interaction terms.
         </div>
       </div>
+
+      <!-- Dataset selector -->
+      <div id="dataset-selector" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
 
       <!-- Stat row -->
       <div class="stat-row stat-row--4">
         <div class="stat-card">
           <div class="stat-card__label">FEATURES</div>
-          <div class="stat-card__value">4</div>
-          <div class="stat-card__sub">ATT · STD · SLP · STR</div>
+          <div class="stat-card__value" id="stat-features">4</div>
+          <div class="stat-card__sub" id="stat-features-sub">d dimensions</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__label">INTERACTION PAIRS</div>
@@ -127,7 +129,7 @@
         <span class="k-row__label">INTERACTION PAIRS  k =</span>
         <span class="k-row__val" id="k-val">3</span>
         <input type="range" id="k-slider" min="1" max="6" value="3" step="1" />
-        <span class="k-row__info">PAIRS USED: <span id="k-val-2" style="color:var(--accent)">3</span> / 6 POSSIBLE</span>
+        <span class="k-row__info">PAIRS USED: <span id="k-val-2" style="color:var(--accent)">3</span> / <span id="k-max-pairs">6</span> POSSIBLE</span>
       </div>
 
       <!-- Two column layout -->
@@ -137,59 +139,11 @@
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div class="card">
             <div class="panel-header">
-              <span class="panel-title">STUDENT FEATURES</span>
+              <span class="panel-title" id="panel-features-title">IRIS FEATURES</span>
               <span class="badge badge--accent">LIVE</span>
             </div>
-            <div class="feature-sliders">
-
-              <div class="slider-row">
-                <div class="slider-row__header">
-                  <span class="slider-row__label">ATTENDANCE RATE</span>
-                  <span class="slider-row__value" id="val-att">3.5</span>
-                </div>
-                <div class="slider-wrap">
-                  <input type="range" id="sl-att" min="1" max="5" step="0.1" value="3.5" />
-                  <div class="slider-track" id="track-att" style="width:62.5%"></div>
-                  <div class="slider-thumb" id="thumb-att" style="left:62.5%"></div>
-                </div>
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-row__header">
-                  <span class="slider-row__label">STUDY HOURS / DAY</span>
-                  <span class="slider-row__value" id="val-study">3.5</span>
-                </div>
-                <div class="slider-wrap">
-                  <input type="range" id="sl-study" min="1" max="5" step="0.1" value="3.5" />
-                  <div class="slider-track" id="track-study" style="width:62.5%"></div>
-                  <div class="slider-thumb" id="thumb-study" style="left:62.5%"></div>
-                </div>
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-row__header">
-                  <span class="slider-row__label">SLEEP QUALITY</span>
-                  <span class="slider-row__value" id="val-sleep">3.0</span>
-                </div>
-                <div class="slider-wrap">
-                  <input type="range" id="sl-sleep" min="1" max="5" step="0.1" value="3.0" />
-                  <div class="slider-track" id="track-sleep" style="width:50%"></div>
-                  <div class="slider-thumb" id="thumb-sleep" style="left:50%"></div>
-                </div>
-              </div>
-
-              <div class="slider-row">
-                <div class="slider-row__header">
-                  <span class="slider-row__label">STRESS LEVEL</span>
-                  <span class="slider-row__value" id="val-stress">3.0</span>
-                </div>
-                <div class="slider-wrap">
-                  <input type="range" id="sl-stress" min="1" max="5" step="0.1" value="3.0" />
-                  <div class="slider-track" id="track-stress" style="width:50%"></div>
-                  <div class="slider-thumb" id="thumb-stress" style="left:50%"></div>
-                </div>
-              </div>
-
+            <div class="feature-sliders" id="feature-inputs">
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:12px 0;">LOADING DATASET...</div>
             </div>
           </div>
 
@@ -220,7 +174,7 @@
           <div class="card">
             <div class="panel-header">
               <span class="panel-title">CONTEXT-SHIFT MATRIX  ΔR<sub>ij</sub></span>
-              <span class="badge badge--muted">4×4</span>
+              <span class="badge badge--muted" id="mini-hm-size-badge">4×4</span>
             </div>
             <div id="mini-heatmap" style="overflow-x:auto;"></div>
           </div>
@@ -673,6 +627,7 @@
 <!-- Tooltip -->
 <div id="hm-tooltip" class="hm-tooltip"></div>
 
+<script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
