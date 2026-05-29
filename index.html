@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS-LLN Inspector — Context-Shifting Log-Linear Network</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ──────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__logo-mark">CS</span>
+      <div class="sidebar__logo-name">CS-LLN<br>Inspector</div>
+    </div>
+    <nav class="sidebar__nav">
+      <button class="nav-btn active" data-page="inspector">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="5.5" y="1" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="10" y="1" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="1" y="5.5" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="5.5" y="5.5" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="10" y="5.5" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="1" y="10" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="5.5" y="10" width="3" height="3" fill="currentColor" rx="0.5"/>
+          <rect x="10" y="10" width="3" height="3" fill="currentColor" rx="0.5"/>
+        </svg>
+        LIVE INSPECTOR
+      </button>
+      <button class="nav-btn" data-page="matrix">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="3" height="3" fill="currentColor"/>
+          <rect x="5" y="1" width="3" height="3" fill="currentColor"/>
+          <rect x="9" y="1" width="4" height="3" fill="currentColor"/>
+          <rect x="1" y="5" width="3" height="3" fill="currentColor"/>
+          <rect x="5" y="5" width="3" height="3" fill="currentColor"/>
+          <rect x="9" y="5" width="4" height="3" fill="currentColor"/>
+          <rect x="1" y="9" width="3" height="4" fill="currentColor"/>
+          <rect x="5" y="9" width="3" height="4" fill="currentColor"/>
+          <rect x="9" y="9" width="4" height="4" fill="currentColor"/>
+        </svg>
+        ΔR MATRIX
+      </button>
+      <button class="nav-btn" data-page="benchmark">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="9" width="2" height="4" fill="currentColor"/>
+          <rect x="4" y="6" width="2" height="7" fill="currentColor"/>
+          <rect x="7" y="4" width="2" height="9" fill="currentColor"/>
+          <rect x="10" y="1" width="3" height="12" fill="currentColor" rx="0.5"/>
+        </svg>
+        BENCHMARK
+      </button>
+      <button class="nav-btn" data-page="pipeline">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="2" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="7" cy="7" r="1.5" fill="currentColor"/>
+          <circle cx="12" cy="7" r="1.5" fill="currentColor"/>
+          <line x1="3.5" y1="7" x2="5.5" y2="7" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="8.5" y1="7" x2="10.5" y2="7" stroke="currentColor" stroke-width="1.2"/>
+        </svg>
+        PIPELINE
+      </button>
+      <button class="nav-btn" data-page="about">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="6.25" y="6" width="1.5" height="4.5" fill="currentColor" rx="0.5"/>
+          <rect x="6.25" y="3.5" width="1.5" height="1.5" fill="currentColor" rx="0.5"/>
+        </svg>
+        ABOUT
+      </button>
+    </nav>
+    <div class="sidebar__footer">
+      <div style="font-size:9px;color:var(--text-muted);font-family:var(--font-mono);letter-spacing:0.08em;margin-bottom:6px;">METHOD</div>
+      <span class="badge badge--accent">CS-LLN v1.0</span>
+    </div>
+  </aside>
+
+  <!-- ── Main content ──────────────────────────── -->
+  <main class="main">
+
+    <!-- ══ INSPECTOR PAGE ══ -->
+    <div id="page-inspector" class="page">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div class="page-header__eyebrow">LIVE CLASSIFIER</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent);letter-spacing:-0.02em;">CS-LLN</span>
+          <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;">Inspector</span>
+          <span class="badge badge--muted">STUDENT PERFORMANCE</span>
+        </div>
+        <div class="page-header__sub">
+          Context-Shifting Log-Linear Network — live inference on student academic features.
+          Adjust feature sliders to see how interaction terms drive the classification in real time.
+        </div>
+      </div>
+
+      <!-- Stat row -->
+      <div class="stat-row stat-row--4">
+        <div class="stat-card">
+          <div class="stat-card__label">FEATURES</div>
+          <div class="stat-card__value">4</div>
+          <div class="stat-card__sub">ATT · STD · SLP · STR</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">INTERACTION PAIRS</div>
+          <div class="stat-card__value" id="stat-pairs">3</div>
+          <div class="stat-card__sub">TOP-K SELECTED</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">ENRICHED DIM.</div>
+          <div class="stat-card__value" id="stat-dim">7</div>
+          <div class="stat-card__sub">d + k FEATURES</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">CLASSIFIER</div>
+          <div class="stat-card__value" style="font-size:18px;">L2-LR</div>
+          <div class="stat-card__sub">LOGISTIC REG.</div>
+        </div>
+      </div>
+
+      <!-- k selector -->
+      <div class="k-row">
+        <span class="k-row__label">INTERACTION PAIRS  k =</span>
+        <span class="k-row__val" id="k-val">3</span>
+        <input type="range" id="k-slider" min="1" max="6" value="3" step="1" />
+        <span class="k-row__info">PAIRS USED: <span id="k-val-2" style="color:var(--accent)">3</span> / 6 POSSIBLE</span>
+      </div>
+
+      <!-- Two column layout -->
+      <div class="two-col">
+
+        <!-- Left: input + enrichment -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">STUDENT FEATURES</span>
+              <span class="badge badge--accent">LIVE</span>
+            </div>
+            <div class="feature-sliders">
+
+              <div class="slider-row">
+                <div class="slider-row__header">
+                  <span class="slider-row__label">ATTENDANCE RATE</span>
+                  <span class="slider-row__value" id="val-att">3.5</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="sl-att" min="1" max="5" step="0.1" value="3.5" />
+                  <div class="slider-track" id="track-att" style="width:62.5%"></div>
+                  <div class="slider-thumb" id="thumb-att" style="left:62.5%"></div>
+                </div>
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-row__header">
+                  <span class="slider-row__label">STUDY HOURS / DAY</span>
+                  <span class="slider-row__value" id="val-study">3.5</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="sl-study" min="1" max="5" step="0.1" value="3.5" />
+                  <div class="slider-track" id="track-study" style="width:62.5%"></div>
+                  <div class="slider-thumb" id="thumb-study" style="left:62.5%"></div>
+                </div>
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-row__header">
+                  <span class="slider-row__label">SLEEP QUALITY</span>
+                  <span class="slider-row__value" id="val-sleep">3.0</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="sl-sleep" min="1" max="5" step="0.1" value="3.0" />
+                  <div class="slider-track" id="track-sleep" style="width:50%"></div>
+                  <div class="slider-thumb" id="thumb-sleep" style="left:50%"></div>
+                </div>
+              </div>
+
+              <div class="slider-row">
+                <div class="slider-row__header">
+                  <span class="slider-row__label">STRESS LEVEL</span>
+                  <span class="slider-row__value" id="val-stress">3.0</span>
+                </div>
+                <div class="slider-wrap">
+                  <input type="range" id="sl-stress" min="1" max="5" step="0.1" value="3.0" />
+                  <div class="slider-track" id="track-stress" style="width:50%"></div>
+                  <div class="slider-thumb" id="thumb-stress" style="left:50%"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">FEATURE ENRICHMENT</span>
+              <span class="badge badge--blue">x̃ ∈ ℝ<sup>d+k</sup></span>
+            </div>
+            <div id="enrich-display">
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">COMPUTING...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: result + context-shift -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">CLASSIFICATION</span>
+              <span class="badge badge--accent">CS-LLN</span>
+            </div>
+            <div id="class-result">
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">LOADING...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">CONTEXT-SHIFT MATRIX  ΔR<sub>ij</sub></span>
+              <span class="badge badge--muted">4×4</span>
+            </div>
+            <div id="mini-heatmap" style="overflow-x:auto;"></div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">PAIR RANKINGS</span>
+              <span class="badge badge--accent">TOP-k SELECTED</span>
+            </div>
+            <div id="top-pairs-live"></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /inspector -->
+
+    <!-- ══ ΔR MATRIX PAGE ══ -->
+    <div id="page-matrix" class="page">
+
+      <div class="page-header">
+        <div class="page-header__eyebrow">CONTEXT-SHIFT ANALYSIS</div>
+        <div class="page-header__title">ΔR<sub>ij</sub> MATRIX EXPLORER</div>
+        <div class="page-header__sub">
+          Mean Absolute Context-Shift scores for the Breast Cancer Wisconsin dataset (top 12 features by total shift).
+          Dark accent cells mark pairs where within-class correlation diverges most between malignant and benign tissue.
+        </div>
+      </div>
+
+      <div class="stat-row stat-row--3">
+        <div class="stat-card">
+          <div class="stat-card__label">DATASET</div>
+          <div class="stat-card__value" style="font-size:16px;">BCW</div>
+          <div class="stat-card__sub">BREAST CANCER WISCONSIN</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">FEATURE PAIRS</div>
+          <div class="stat-card__value">435</div>
+          <div class="stat-card__sub">d=30  →  C(30,2)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">BEST ΔR PAIR</div>
+          <div class="stat-card__value" style="font-size:14px;">0.695</div>
+          <div class="stat-card__sub">MEAN AREA × RADIUS ERR</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+
+        <div class="card card--flush">
+          <div style="padding:20px 24px;">
+            <div class="panel-header" style="margin-bottom:12px;">
+              <span class="panel-title">MEAN ABSOLUTE CONTEXT-SHIFT  ΔR<sub>ij</sub></span>
+              <span class="badge badge--muted">TOP 12 FEATURES</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(224,255,83,0.85);"></div>
+                <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">ΔR > 0.5 (HIGH SHIFT)</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(59,130,246,0.5);"></div>
+                <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">ΔR 0.25–0.5</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,255,255,0.1);"></div>
+                <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);">ΔR < 0.25 (LOW)</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0 24px 20px;overflow-x:auto;" id="bc-heatmap">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">LOADING HEATMAP...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">TOP 10 PAIRS BY ΔR SCORE</span>
+            <span class="badge badge--accent">BREAST CANCER</span>
+          </div>
+          <div id="top-pairs-bc"></div>
+
+          <div class="divider"></div>
+
+          <div style="font-family:var(--font-ui);font-size:12px;color:var(--text-muted);line-height:1.7;">
+            The dominant pairs all involve combinations of
+            <span style="color:var(--accent)">worst-radius</span>,
+            <span style="color:var(--accent)">worst-area</span>, and
+            <span style="color:var(--accent)">worst-perimeter</span> —
+            three measures of the same geometric property of the largest observed cell nucleus.
+            In malignant tissue these co-elevate; in benign tissue they fluctuate independently.
+            This joint signal is structurally invisible to Naive Bayes.
+          </div>
+
+          <div class="divider"></div>
+
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.08em;">
+            CS-LLN ACCURACY vs. k  (5-FOLD CV)
+          </div>
+          <div class="chart-wrap">
+            <canvas id="k-chart" width="420" height="200" style="max-width:100%;"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /matrix -->
+
+    <!-- ══ BENCHMARK PAGE ══ -->
+    <div id="page-benchmark" class="page">
+
+      <div class="page-header">
+        <div class="page-header__eyebrow">MODEL COMPARISON</div>
+        <div class="page-header__title">BENCHMARK RESULTS</div>
+        <div class="page-header__sub">
+          Five-fold stratified cross-validation against four standard baselines on three UCI benchmark datasets.
+          All models use StandardScaler fit on training folds only. CS-LLN hyperparameter k selected by inner CV.
+        </div>
+      </div>
+
+      <div class="stat-row stat-row--4">
+        <div class="stat-card">
+          <div class="stat-card__label">ERROR REDUCTION vs NB</div>
+          <div class="stat-card__value">63%</div>
+          <div class="stat-card__sub">BREAST CANCER DATASET</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">LOG-LOSS IMPROVEMENT</div>
+          <div class="stat-card__value">~10×</div>
+          <div class="stat-card__sub">0.7768 → 0.0779</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">DATASETS WON</div>
+          <div class="stat-card__value">2 / 3</div>
+          <div class="stat-card__sub">BREAST CANCER + WINE</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">WINE k=1 ACCURACY</div>
+          <div class="stat-card__value">99.4%</div>
+          <div class="stat-card__sub">SINGLE PAIR SUFFICES</div>
+        </div>
+      </div>
+
+      <!-- Three dataset tables -->
+      <div class="three-col">
+
+        <div class="card card--flush">
+          <div style="padding:16px 20px 0;">
+            <div class="panel-header">
+              <span class="panel-title">BREAST CANCER WISCONSIN</span>
+              <span class="badge badge--accent">★ CS-LLN WINS</span>
+            </div>
+            <div class="bench-note" style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-bottom:12px;letter-spacing:0.04em;">N=569, d=30, C=2</div>
+          </div>
+          <div id="bench-0" style="padding:0 0 4px;overflow-x:auto;"></div>
+        </div>
+
+        <div class="card card--flush">
+          <div style="padding:16px 20px 0;">
+            <div class="panel-header">
+              <span class="panel-title">WINE RECOGNITION</span>
+              <span class="badge badge--accent">★ CS-LLN WINS</span>
+            </div>
+            <div class="bench-note" style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-bottom:12px;letter-spacing:0.04em;">N=178, d=13, C=3</div>
+          </div>
+          <div id="bench-1" style="padding:0 0 4px;overflow-x:auto;"></div>
+        </div>
+
+        <div class="card card--flush">
+          <div style="padding:16px 20px 0;">
+            <div class="panel-header">
+              <span class="panel-title">IRIS</span>
+              <span class="badge badge--blue">LDA WINS</span>
+            </div>
+            <div class="bench-note" style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-bottom:12px;letter-spacing:0.04em;">N=150, d=4, C=3</div>
+          </div>
+          <div id="bench-2" style="padding:0 0 4px;overflow-x:auto;"></div>
+        </div>
+
+      </div>
+
+      <!-- Visual accuracy bars -->
+      <div class="card">
+        <div class="panel-header">
+          <span class="panel-title">ACCURACY COMPARISON — ALL DATASETS</span>
+          <span class="badge badge--muted">5-FOLD CV</span>
+        </div>
+        <div id="acc-bars" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;"></div>
+      </div>
+
+    </div><!-- /benchmark -->
+
+    <!-- ══ PIPELINE PAGE ══ -->
+    <div id="page-pipeline" class="page">
+
+      <div class="page-header">
+        <div class="page-header__eyebrow">METHODOLOGY</div>
+        <div class="page-header__title">CS-LLN PIPELINE</div>
+        <div class="page-header__sub">
+          Five-step closed-form algorithm. No gradient computation until the final logistic regression step.
+          All screening is done in a single pass over the training data.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">ALGORITHM STEPS</span>
+            <span class="badge badge--accent">ALGORITHM 1</span>
+          </div>
+          <div class="pipeline">
+
+            <div class="pipeline-step">
+              <div class="pipeline-step__num">01</div>
+              <div>
+                <div class="pipeline-step__label">STANDARDISE INPUT</div>
+                <div class="pipeline-step__desc">
+                  Centre and scale each feature to zero mean and unit variance using training-fold statistics only.
+                  Prevents test-set leakage and stabilises the correlation estimation step.
+                </div>
+                <div class="pipeline-step__formula">X ← StandardScaler().fit_transform(X_train)</div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="pipeline-step__num">02</div>
+              <div>
+                <div class="pipeline-step__label">CLASS-CONDITIONAL CORRELATIONS</div>
+                <div class="pipeline-step__desc">
+                  For each class c, split the training rows and compute a full d×d Pearson correlation matrix R<sup>(c)</sup>.
+                  Each cell R<sup>(c)</sup><sub>ij</sub> measures how features i and j co-vary within that class.
+                </div>
+                <div class="pipeline-step__formula">R<sup>(c)</sup><sub>ij</sub> = Pearson(X<sub>c,i</sub>, X<sub>c,j</sub>)  ∀ c, i &lt; j</div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="pipeline-step__num">03</div>
+              <div>
+                <div class="pipeline-step__label">CONTEXT-SHIFT SCORING  ΔR<sub>ij</sub></div>
+                <div class="pipeline-step__desc">
+                  Compute the Mean Absolute Context-Shift score for every feature pair — the average absolute
+                  difference in class-conditional correlation across all C(C-1)/2 class pairs.
+                  A high ΔR means the pair's relationship is class-specific, something NB cannot see.
+                </div>
+                <div class="pipeline-step__formula">ΔR<sub>ij</sub> = (2 / C(C-1)) · Σ<sub>m&lt;n</sub> |R<sup>(m)</sup><sub>ij</sub> − R<sup>(n)</sup><sub>ij</sub>|</div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="pipeline-step__num">04</div>
+              <div>
+                <div class="pipeline-step__label">SPARSE PAIR SELECTION  Ω<sub>k</sub></div>
+                <div class="pipeline-step__desc">
+                  Rank all C(d,2) pairs by ΔR descending and select the top-k.
+                  For d=30 with k=45, the enriched space is 75 dimensions vs 465 for full quadratic expansion — a 6.2× reduction.
+                </div>
+                <div class="pipeline-step__formula">Ω<sub>k</sub> = argtop-k<sub>(i,j): i&lt;j</sub> ΔR<sub>ij</sub></div>
+              </div>
+            </div>
+
+            <div class="pipeline-step">
+              <div class="pipeline-step__num">05</div>
+              <div>
+                <div class="pipeline-step__label">FEATURE ENRICHMENT + LR</div>
+                <div class="pipeline-step__desc">
+                  Append product terms x<sub>i</sub>·x<sub>j</sub> for each selected pair to form the enriched matrix X̃ ∈ ℝ<sup>N×(d+k)</sup>.
+                  Train L2-regularised logistic regression on X̃. The decision boundary is linear in X̃ but quadratic in the original space X.
+                </div>
+                <div class="pipeline-step__formula">x̃ = [x<sub>1</sub>…x<sub>d</sub>, {x<sub>i</sub>·x<sub>j</sub>}<sub>(i,j)∈Ω<sub>k</sub></sub>]   →   L2-LR</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">KEY INTUITION</span>
+              <span class="badge badge--blue">WHY IT WORKS</span>
+            </div>
+            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.7;">
+              Naive Bayes implicitly assumes <span style="color:var(--accent);font-family:var(--font-mono)">R<sup>(c)</sup><sub>ij</sub> = 0</span> for all classes and all pairs.
+              A pair with <span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub> = 0</span> is one NB is wrong about <em>consistently</em> — which doesn't bias the decision boundary.
+              A pair with <span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub> ≫ 0</span> is one NB is wrong about in a <em>class-specific</em> way — which systematically distorts posteriors.
+              CS-LLN targets precisely these pairs.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">COMPLEXITY</span>
+              <span class="badge badge--muted">BIG-O</span>
+            </div>
+            <div>
+              <div class="about-row">
+                <span class="about-row__key">CLASS CORRELATIONS</span>
+                <span class="about-row__val--accent about-row__val" style="font-family:var(--font-mono)">O(Nd²)</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">SORT ΔR</span>
+                <span class="about-row__val" style="font-family:var(--font-mono)">O(d² log d)</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">LR TRAINING</span>
+                <span class="about-row__val" style="font-family:var(--font-mono)">O(N(d+k)·iter)</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">INFERENCE / SAMPLE</span>
+                <span class="about-row__val--accent about-row__val" style="font-family:var(--font-mono)">O((d+k)·C)</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">GRADIENT STEPS NEEDED</span>
+                <span class="about-row__val--accent about-row__val">0  (screening is closed-form)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">VS. OTHER METHODS</span>
+              <span class="badge badge--muted">COMPARISON</span>
+            </div>
+            <div>
+              <div class="about-row">
+                <span class="about-row__key">TAN</span>
+                <span class="about-row__val">Tree structure · 1 parent</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">AODE</span>
+                <span class="about-row__val">O(d) parameter tables</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">FACT. MACHINES</span>
+                <span class="about-row__val">All pairs · needs SGD</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key">FULL QUAD. EXPANSION</span>
+                <span class="about-row__val">d+C(d,2) dims · no ranking</span>
+              </div>
+              <div class="about-row">
+                <span class="about-row__key" style="color:var(--accent)">CS-LLN</span>
+                <span class="about-row__val--accent about-row__val">k≪C(d,2) · closed-form rank</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /pipeline -->
+
+    <!-- ══ ABOUT PAGE ══ -->
+    <div id="page-about" class="page">
+
+      <div class="page-header">
+        <div class="page-header__eyebrow">PAPER INFO</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--accent);">CS-LLN</span>
+          <span class="badge badge--muted">ARXIV PREPRINT</span>
+        </div>
+        <div class="page-header__sub">
+          Context-Shift Interaction Screening for Feature-Enriched Classification:
+          A Sparse, Closed-Form Approach Beyond the Naive Independence Assumption
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">PAPER DETAILS</span>
+            </div>
+            <div class="about-row"><span class="about-row__key">AUTHOR</span><span class="about-row__val--accent about-row__val">Atharv Khare</span></div>
+            <div class="about-row"><span class="about-row__key">INSTITUTION</span><span class="about-row__val">LNCT Bhopal, India</span></div>
+            <div class="about-row"><span class="about-row__key">DEPARTMENT</span><span class="about-row__val">CSE</span></div>
+            <div class="about-row"><span class="about-row__key">METHOD NAME</span><span class="about-row__val--accent about-row__val">CS-LLN</span></div>
+            <div class="about-row"><span class="about-row__key">CORE CRITERION</span><span class="about-row__val">ΔR<sub>ij</sub> (Mean Abs. Context-Shift)</span></div>
+            <div class="about-row"><span class="about-row__key">FINAL CLASSIFIER</span><span class="about-row__val">L2 Logistic Regression</span></div>
+            <div class="about-row"><span class="about-row__key">CODE FRAMEWORK</span><span class="about-row__val--accent about-row__val">sklearn-compatible Python</span></div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">KEY RESULTS</span>
+            </div>
+            <div class="about-row"><span class="about-row__key">BREAST CANCER ACCURACY</span><span class="about-row__val--accent about-row__val">97.72% ± 1.6</span></div>
+            <div class="about-row"><span class="about-row__key">vs. GAUSSIAN NB</span><span class="about-row__val">+4.75pp  (63% error ↓)</span></div>
+            <div class="about-row"><span class="about-row__key">LOG-LOSS IMPROVEMENT</span><span class="about-row__val--accent about-row__val">~10× (0.77 → 0.08)</span></div>
+            <div class="about-row"><span class="about-row__key">WINE ACCURACY</span><span class="about-row__val--accent about-row__val">98.89% with k=5</span></div>
+            <div class="about-row"><span class="about-row__key">WINE k=1 ACCURACY</span><span class="about-row__val">99.44% (single pair!)</span></div>
+            <div class="about-row"><span class="about-row__key">DATASETS WON</span><span class="about-row__val--accent about-row__val">2 / 3 UCI BENCHMARKS</span></div>
+          </div>
+
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">ABSTRACT</span>
+            </div>
+            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.75;">
+              The Naive Bayes classifier is widely used for its simplicity and speed, but its core assumption
+              that all features are conditionally independent given the class label does not hold in most
+              real-world datasets. When features are correlated in class-specific ways, NB either double-counts
+              redundant evidence or misses compound signals that only appear when features co-occur.
+              <br><br>
+              CS-LLN identifies feature pairs whose pairwise Pearson correlation changes most across class boundaries
+              and enriches the feature space with their product terms before discriminative classification.
+              The pair selection criterion (<span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub></span>)
+              requires no iterative optimization and no gradient computation.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">PLANNED EXTENSION</span>
+              <span class="badge badge--purple">IN PROGRESS</span>
+            </div>
+            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;">
+              Real-world validation on a <span style="color:var(--accent)">student academic performance dataset</span>
+              collected via anonymous survey at LNCT Bhopal. 20 features, 3 performance classes (High / Average / At-Risk), target 200–400 responses.
+            </div>
+            <div>
+              <div class="about-row"><span class="about-row__key">FEATURES</span><span class="about-row__val">20 (survey, Likert + binary)</span></div>
+              <div class="about-row"><span class="about-row__key">CLASSES</span><span class="about-row__val">3 (CGPA bands)</span></div>
+              <div class="about-row"><span class="about-row__key">TARGET N</span><span class="about-row__val">200–400 responses</span></div>
+              <div class="about-row"><span class="about-row__key">TOP EXPECTED PAIR</span><span class="about-row__val--accent about-row__val">Attendance × Submission (ΔR≈0.40)</span></div>
+              <div class="about-row"><span class="about-row__key">HYPOTHESIS</span><span class="about-row__val">Withdrawal spiral → high ΔR</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">LIMITATIONS</span>
+            </div>
+            <div class="about-row"><span class="about-row__key">FEATURE TYPE</span><span class="about-row__val">Continuous only (Pearson)</span></div>
+            <div class="about-row"><span class="about-row__key">MIN SAMPLES / CLASS</span><span class="about-row__val">N<sub>c</sub> ≥ 2d recommended</span></div>
+            <div class="about-row"><span class="about-row__key">HYPERPARAMETER k</span><span class="about-row__val">Needs cross-validation</span></div>
+            <div class="about-row"><span class="about-row__key">FUTURE WORK</span><span class="about-row__val--accent about-row__val">Polychoric corr. for ordinal</span></div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /about -->
+
+  </main>
+</div>
+
+<!-- Tooltip -->
+<div id="hm-tooltip" class="hm-tooltip"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
