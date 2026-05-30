@@ -57,7 +57,7 @@ the Naive Independence Assumption}
 \IEEEauthorblockN{Atharv Khare}
 \IEEEauthorblockA{
 \textit{Department of Computer Science and Engineering}\\
-\textit{Lakshmibai National College of Technology (LNCT)}\\
+\textit{Lakshmi Narain College of Technology (LNCT)}\\
 Bhopal, Madhya Pradesh, India\\
 \texttt{atharvkhare@lnct.ac.in}
 }
@@ -79,7 +79,8 @@ whose pairwise Pearson correlation changes most across class boundaries and
 enriches the feature space with their product terms before discriminative
 classification.
 The pair selection criterion, the Mean Absolute Context-Shift score
-(delta-R), requires no iterative optimization and no gradient computation.
+($\Delta R_{ij}$), requires no iterative optimization and no gradient
+computation for the screening step.
 We evaluate CS-LLN against Gaussian Naive Bayes, Linear Discriminant
 Analysis, Logistic Regression, and a Linear SVM on three benchmark
 UCI datasets using five-fold stratified cross-validation.
@@ -93,7 +94,7 @@ is described with the full experimental protocol.
 
 \begin{IEEEkeywords}
 feature interaction, Naive Bayes, context shift, correlation divergence,
-sparse feature augmentation, classification, educational data mining
+sparse feature augmentation, classification
 \end{IEEEkeywords}
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -130,9 +131,9 @@ it fails structurally whenever features carry joint information that their
 marginals alone do not encode.
 
 \begin{figure}[!t]
-\centerline{\includegraphics[width=\columnwidth]{fig_pipeline.pdf}}
+\centerline{\includegraphics[width=\columnwidth]{fig_pipeline.png}}
 \caption{Overview of the CS-LLN pipeline.
-Input features are processed in two branches simultaneously.
+Input features are processed in two parallel branches.
 The upper branch computes class-conditional Pearson correlation matrices
 and derives the context-shift score $\Delta R_{ij}$ for every feature pair.
 The lower branch retains the original features unchanged.
@@ -352,9 +353,14 @@ is identical across all classes, while a value of two would mean the
 correlation is $+1$ under one class and $-1$ under another.
 
 \textbf{Relationship to Naive Bayes.}
-Naive Bayes implicitly assumes $R^{(c)}_{ij} = 0$ for all classes and all
-pairs.
-This is correct only when features are genuinely conditionally independent.
+Gaussian Naive Bayes models each class-conditional density as a product of
+univariate Gaussians, which is equivalent to assuming $R^{(c)}_{ij} = 0$ for
+all classes and all pairs.
+This holds exactly only when the features are jointly Gaussian and genuinely
+conditionally independent within each class; in general, zero Pearson
+correlation is necessary but not sufficient for the independence that Naive
+Bayes assumes, so $\Delta R_{ij}$ should be read as a measure of the
+\emph{linear} component of that class-specific dependence.
 A pair with high $\Delta R_{ij}$ is one for which NB is wrong in a
 \emph{class-specific} way: the model treats the pair as equally uncorrelated
 in every class when in fact the correlation is very different.
@@ -362,7 +368,7 @@ It is this class-specific error that degrades the decision boundary.
 $\Delta R_{ij}$ directly quantifies it.
 
 \begin{figure}[!t]
-\centerline{\includegraphics[width=\columnwidth]{fig_heatmap.pdf}}
+\centerline{\includegraphics[width=\columnwidth]{fig_heatmap.png}}
 \caption{Mean Absolute Context-Shift matrix $\Delta R_{ij}$ for the top 12
 features of the Breast Cancer Wisconsin dataset by total shift magnitude.
 Dark cells indicate pairs where the within-class correlation changes
@@ -524,8 +530,9 @@ The class follows the standard \texttt{BaseEstimator} and
 pipelines, cross-validation utilities, and hyperparameter search tools.
 
 Listing~\ref{lst:csln} shows the core implementation.
-The complete code including the evaluation harness and figure generation
-scripts is available in the supplementary material.
+The complete code, including the evaluation harness, the figure-generation
+scripts, and an interactive browser-based companion (the CS-LLN Inspector),
+is provided as supplementary material accompanying this submission.
 
 \begin{lstlisting}[
   caption={Core CS-LLN implementation (sklearn-compatible).},
@@ -535,7 +542,7 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.linear_model import LogisticRegression
 
-class CSLN(BaseEstimator, ClassifierMixin):
+class CSLLN(BaseEstimator, ClassifierMixin):
     """
     Context-Shifting Log-Linear Network (CS-LLN).
     Enriches input features with product terms for
@@ -624,11 +631,11 @@ class CSLN(BaseEstimator, ClassifierMixin):
             np.argmax(self.predict_proba(X), axis=1)]
 \end{lstlisting}
 
-The \texttt{fit} method follows Algorithm~\ref{alg:train} exactly.
-\texttt{selected\_pairs\_} stores $\Omega_k$ and is used at inference time
+The \texttt{fit} method implements Steps~2--5 of Algorithm~\ref{alg:train};
+standardisation (Step~1) is applied externally via \texttt{StandardScaler}
+inside each cross-validation fold to prevent data leakage.
+\texttt{selected\_pairs\_} stores $\Omega_k$ and is reused at inference time
 inside \texttt{\_enrich}.
-Feature standardisation is handled externally via \texttt{StandardScaler}
-inside the cross-validation folds to prevent data leakage.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Experiments}
@@ -777,8 +784,9 @@ Logistic Reg.
 \end{table}
 
 \begin{table}[!t]
-\caption{Iris ($N$=150, $d$=4, $C$=3). CS-LLN uses $k$=5.
-LDA achieves the highest accuracy on this low-dimensional dataset.}
+\caption{Iris ($N$=150, $d$=4, $C$=3). CS-LLN uses $k$=5 of the 6 possible
+pairs---a near-full expansion. LDA achieves the highest accuracy on this
+low-dimensional dataset.}
 \label{tab:iris}
 \begin{center}
 \begin{tabular}{lrrr}
@@ -814,7 +822,7 @@ Linear SVM
 \end{table}
 
 \begin{figure}[!t]
-\centerline{\includegraphics[width=\columnwidth]{fig_comparison.pdf}}
+\centerline{\includegraphics[width=\columnwidth]{fig_comparison.png}}
 \caption{Five-fold cross-validated accuracy for all models across all three
 datasets.
 Error bars show $\pm 1$ standard deviation.
@@ -836,6 +844,10 @@ posteriors toward 0 and 1 even when the evidence is ambiguous.
 CS-LLN produces well-separated but better-calibrated posteriors
 because the product features capture the joint geometry of the tumour
 nucleus rather than treating each measurement independently.
+We stress that this $9.97\times$ gain is relative to GNB specifically;
+against the strongest baseline (LR, log-loss 0.0764) CS-LLN's calibration is
+essentially on par (0.0779), so the calibration advantage is over the
+independence assumption, not over discriminative baselines.
 
 On Wine, CS-LLN achieves 98.89\%, outperforming all four baselines
 including LR (98.33\%) and LDA (98.30\%).
@@ -845,9 +857,12 @@ signals among the chemical features.
 
 On Iris, LDA leads at 97.33\%.
 CS-LLN achieves 96.67\%, outperforming GNB (94.67\%) and LR (95.33\%).
-With $d = 4$, there are only six possible interaction pairs; LDA's
-pooled Gaussian assumption is well matched to this clean, low-dimensional
-dataset where covariance structure is estimable from 150 samples.
+With $d = 4$, there are only six possible interaction pairs, so the
+inner-CV choice of $k = 5$ is effectively a near-full quadratic expansion
+rather than sparse screening, and CS-LLN's sparsity advantage cannot be
+exercised here. LDA's pooled Gaussian assumption is well matched to this
+clean, low-dimensional dataset where covariance structure is estimable from
+150 samples.
 The result confirms that CS-LLN does not degrade relative to GNB even in
 regimes where interaction screening provides limited benefit.
 
@@ -858,14 +873,15 @@ Fig.~\ref{fig:ablation} shows CS-LLN five-fold accuracy as $k$ varies
 from 1 to the maximum number of pairs on Breast Cancer and Wine.
 
 \begin{figure}[!t]
-\centerline{\includegraphics[width=\columnwidth]{fig_ablation.pdf}}
+\centerline{\includegraphics[width=\columnwidth]{fig_ablation.png}}
 \caption{CS-LLN accuracy as a function of the number of selected pairs $k$,
 with $\pm 1$ standard deviation shading.
 The dashed red line marks the GNB baseline.
 On Breast Cancer (left), CS-LLN outperforms GNB at every value of $k$
 from 1 to 60, showing robustness to the choice of $k$.
-Performance degrades only when $k$ approaches the full pairwise expansion
-($k = 78$ out of 435).
+Accuracy only starts to fall as $k$ grows large; at $k = 78$ (still just
+18\% of the full 435-pair expansion) it drops to 96.49\%, reflecting
+multicollinearity from progressively less discriminative pairs.
 On Wine (right), a single pair ($k=1$) already reaches 99.44\%, confirming
 that context-shift ranking precisely identifies the dominant interaction.}
 \label{fig:ablation}
@@ -876,8 +892,9 @@ $k$ from 1 to 60.
 The peak at $k = 45$ (97.72\%) is only 0.35 percentage points above the
 performance at $k = 1$ (97.37\%), indicating that even the single most
 context-shifting pair provides most of the gain.
-Performance degrades at $k = 78$ (96.49\%), consistent with the known
-result that indiscriminate polynomial expansion introduces multicollinearity.
+Performance degrades at $k = 78$---still only 18\% of the 435 possible
+pairs---to 96.49\%, consistent with the known result that indiscriminate
+polynomial expansion introduces multicollinearity.
 The existence of a stable high-performance plateau over a wide range of $k$
 values means that cross-validation is needed mainly to avoid the degradation
 zone, not to find a single precise optimum.
@@ -899,7 +916,7 @@ Fig.~\ref{fig:top_pairs} shows the top 10 context-shifting pairs on
 Breast Cancer ranked by $\Delta R_{ij}$.
 
 \begin{figure}[!t]
-\centerline{\includegraphics[width=\columnwidth]{fig_top_pairs.pdf}}
+\centerline{\includegraphics[width=\columnwidth]{fig_top_pairs.png}}
 \caption{Top 10 feature pairs ranked by Mean Absolute Context-Shift score
 $\Delta R_{ij}$ on the Breast Cancer Wisconsin dataset.
 Pairs involve combinations of worst-scale geometric features
@@ -925,7 +942,7 @@ feature carries alone, which is a clinically meaningful finding aligned
 with pathological understanding of tumour morphology \cite{street1993}.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\section{Student Academic Performance Study}
+\section{Planned Study: Student Academic Performance}
 \label{sec:student}
 
 \subsection{Motivation}
@@ -1037,7 +1054,7 @@ self-reported CGPA range:
 \end{itemize}
 
 Target sample size is 200--400 responses.
-The practical minimum for stable CPMI and $\Delta R_{ij}$ estimation is
+The practical minimum for stable $\Delta R_{ij}$ estimation is
 approximately $2d$ samples per class \cite{fan2015}, which for $d = 20$ and
 $C = 3$ requires roughly 120 responses total.
 At 400 responses we expect approximately 120--160 per class, giving
@@ -1074,6 +1091,11 @@ extended version of this paper.
 The experimental protocol will follow exactly the setup of
 Section~\ref{sec:setup}, with $k$ selected by inner cross-validation and
 the same five-fold stratified scheme.
+Because roughly half of the survey items are binary or ordinal---for which
+the Pearson coefficient is not strictly appropriate---$\Delta R_{ij}$ for
+those items will be computed using polychoric and point-biserial correlations
+rather than the raw Pearson coefficient, consistent with the limitation noted
+in Section~\ref{sec:disc}.
 We expect CS-LLN to show a larger advantage over GNB on this dataset than
 on the UCI benchmarks, because the theoretical basis for strong
 class-conditional correlation among study habit features is directly
@@ -1086,8 +1108,8 @@ supported by the literature \cite{crede2008, tinto1987}.
 \subsection{Why Context-Shift Screening Is Effective}
 
 The $\Delta R_{ij}$ criterion directly quantifies what NB discards.
-Naive Bayes implicitly treats $R^{(c)}_{ij} = 0$ for every class and every
-pair.
+Gaussian Naive Bayes implicitly treats $R^{(c)}_{ij} = 0$ for every class
+and every pair.
 A pair with $\Delta R_{ij} = 0$ is one whose correlation is identical across
 all classes: NB is wrong about it, but consistently wrong in a way that does
 not bias the decision boundary.
@@ -1131,6 +1153,26 @@ feature types is a direction for future work.
 The number of selected pairs must be tuned.
 The ablation study shows robustness over a wide range, reducing the
 sensitivity of this choice, but a cross-validation loop is still required.
+
+\noindent\textbf{Linear dependence only.}
+$\Delta R_{ij}$ is built from Pearson correlations and therefore detects only
+\emph{linear} shifts in class-conditional dependence. A pair whose joint
+structure changes nonlinearly across classes---for example, a relationship
+that is monotone but curved, or that traces a circle in one class and a line
+in another---can have $\Delta R_{ij} \approx 0$ and be missed entirely. A
+distance-correlation or rank-correlation analogue of $\Delta R_{ij}$ would
+capture such cases and is left to future work.
+
+\noindent\textbf{Estimation noise and statistical significance.}
+With $\binom{d}{2}$ pairs ranked from finite per-class samples, some large
+$\Delta R_{ij}$ values arise by chance; we apply no permutation test,
+bootstrap interval, or false-discovery-rate control to the ranking, so
+spurious pairs may be selected on small datasets. Relatedly, the accuracy
+margins of CS-LLN over the strongest baselines (LR and linear SVM) are small
+and lie within one standard deviation across folds; we did not perform paired
+significance testing, so these gaps should be read as competitive rather than
+decisively superior. A permutation null for $\Delta R_{ij}$ and a paired test
+(e.g.\ McNemar or a fold-wise Wilcoxon signed-rank test) are natural additions.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
@@ -1221,11 +1263,11 @@ in \textit{Proc.\ 10th Conf.\ Uncertainty in Artificial Intelligence},
 1994, pp.~399--406.
 
 \bibitem{fan2015}
-J.~Fan, Y.~Feng, and X.~Tong,
-``A road to classification in high dimensional space:
-the regularized optimal affine discriminant,''
-\textit{J.\ Roy.\ Stat.\ Soc.\ Ser.~B}, vol.~74, no.~4,
-pp.~745--771, 2012.
+Y.~Fan, Y.~Kong, D.~Li, and Z.~Zheng,
+``Innovated interaction screening for high-dimensional
+nonlinear classification,''
+\textit{Ann.\ Statist.}, vol.~43, no.~3,
+pp.~1243--1272, 2015.
 
 \bibitem{hero2012}
 A.~Hero and B.~Rajaratnam,

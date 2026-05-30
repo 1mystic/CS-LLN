@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir)",
       "Bash(node --check app.js)",
-      "Bash(node --check data.js)"
+      "Bash(node --check data.js)",
+      "WebSearch"
     ]
   }
 }
