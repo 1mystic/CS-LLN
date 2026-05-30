@@ -253,8 +253,8 @@ window.DATASET_REGISTRY = {
   wine: {
     key: 'wine',
     label: 'WINE',
-    subLabel: 'UCI · seeded synthetic',
-    description: 'N=180, d=13, C=3  ·  Italian wine cultivar chemical analysis. CS-LLN achieves 98.89% — a single pair (k=1) reaches 99.44%.',
+    subLabel: 'seeded synthetic proxy',
+    description: 'd=13, C=3  ·  Italian wine cultivar chemistry. Live demo uses a seeded synthetic proxy (180 rows) that reproduces the paper’s within-class correlation structure; the paper’s benchmark uses the real UCI set (N=178), where CS-LLN reaches 98.89% (k=1 → 99.44%).',
     features: ['Alcohol', 'Malic Acid', 'Ash', 'Alcalinity', 'Magnesium',
                'Total Phenols', 'Flavanoids', 'Nonflavanoid', 'Proanthocyanins',
                'Color Intensity', 'Hue', 'OD280/315', 'Proline'],
@@ -269,8 +269,8 @@ window.DATASET_REGISTRY = {
   breast_cancer: {
     key: 'breast_cancer',
     label: 'BREAST CANCER',
-    subLabel: 'UCI BCW · top 10 features',
-    description: 'N=120, d=10, C=2  ·  Cell nucleus measurements. CS-LLN achieves 97.72% (full 30-feat model). Geometric co-elevation (worst-radius × worst-area) is the key interaction.',
+    subLabel: 'seeded synthetic proxy',
+    description: 'd=10, C=2  ·  Cell-nucleus measurements. Live demo uses a seeded synthetic proxy (120 rows, 10 features) with the same geometric co-elevation the paper reports. The paper’s benchmark uses the real UCI set (N=569, d=30), where CS-LLN reaches 97.72% (63% error ↓ vs GNB).',
     features: ['Worst Radius', 'Worst Area', 'Worst Perimeter', 'Mean Area', 'Mean Radius',
                'Mean Perimeter', 'Radius Error', 'Perim. Error', 'Worst Concavity', 'Mean Concavity'],
     units: ['μm','μm²','μm','μm²','μm','μm','μm','μm','',''],

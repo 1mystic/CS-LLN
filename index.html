@@ -98,7 +98,10 @@
       </div>
 
       <!-- Dataset selector -->
-      <div id="dataset-selector" style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;"></div>
+      <div id="dataset-selector" style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;"></div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;max-width:760px;">
+        NOTE — Iris is the exact Fisher (1936) data. Wine &amp; Breast Cancer here are <span style="color:var(--blue)">seeded synthetic proxies</span> that reproduce the paper&rsquo;s class-conditional correlation structure for live exploration. The headline accuracies come from the <span style="color:var(--accent)">full UCI datasets</span> — see the BENCHMARK tab.
+      </div>
 
       <!-- Stat row -->
       <div class="stat-row stat-row--4">
@@ -215,7 +218,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-card__label">BEST ΔR PAIR</div>
-          <div class="stat-card__value" style="font-size:14px;">0.695</div>
+          <div class="stat-card__value" style="font-size:18px;">0.70</div>
           <div class="stat-card__sub">MEAN AREA × RADIUS ERR</div>
         </div>
       </div>
@@ -257,7 +260,7 @@
 
           <div class="divider"></div>
 
-          <div style="font-family:var(--font-ui);font-size:12px;color:var(--text-muted);line-height:1.7;">
+          <div style="font-family:var(--font-ui);font-size:14px;color:var(--text-secondary);line-height:1.75;">
             The dominant pairs all involve combinations of
             <span style="color:var(--accent)">worst-radius</span>,
             <span style="color:var(--accent)">worst-area</span>, and
@@ -273,7 +276,7 @@
             CS-LLN ACCURACY vs. k  (5-FOLD CV)
           </div>
           <div class="chart-wrap">
-            <canvas id="k-chart" width="420" height="200" style="max-width:100%;"></canvas>
+            <canvas id="k-chart" width="440" height="230" style="max-width:100%;"></canvas>
           </div>
         </div>
 
@@ -454,7 +457,7 @@
               <span class="panel-title">KEY INTUITION</span>
               <span class="badge badge--blue">WHY IT WORKS</span>
             </div>
-            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.7;">
+            <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.75;">
               Naive Bayes implicitly assumes <span style="color:var(--accent);font-family:var(--font-mono)">R<sup>(c)</sup><sub>ij</sub> = 0</span> for all classes and all pairs.
               A pair with <span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub> = 0</span> is one NB is wrong about <em>consistently</em> — which doesn't bias the decision boundary.
               A pair with <span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub> ≫ 0</span> is one NB is wrong about in a <em>class-specific</em> way — which systematically distorts posteriors.
@@ -576,7 +579,7 @@
             <div class="panel-header">
               <span class="panel-title">ABSTRACT</span>
             </div>
-            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.75;">
+            <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.8;">
               The Naive Bayes classifier is widely used for its simplicity and speed, but its core assumption
               that all features are conditionally independent given the class label does not hold in most
               real-world datasets. When features are correlated in class-specific ways, NB either double-counts
@@ -594,7 +597,7 @@
               <span class="panel-title">PLANNED EXTENSION</span>
               <span class="badge badge--purple">IN PROGRESS</span>
             </div>
-            <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;">
+            <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.75;margin-bottom:12px;">
               Real-world validation on a <span style="color:var(--accent)">student academic performance dataset</span>
               collected via anonymous survey at LNCT Bhopal. 20 features, 3 performance classes (High / Average / At-Risk), target 200–400 responses.
             </div>

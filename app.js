@@ -38,7 +38,7 @@ const BC_DELTA_R = [
 ];
 
 const TOP_PAIRS_BC = [
-  { pair: 'mean area × radius error',         score: 0.695 },
+  { pair: 'mean area × radius error',         score: 0.700 },
   { pair: 'mean radius × radius error',        score: 0.667 },
   { pair: 'mean perimeter × radius error',     score: 0.665 },
   { pair: 'mean area × perimeter error',       score: 0.656 },
@@ -175,22 +175,33 @@ function trainLR(X, y, lambda = 0.5, lr = 0.08, iters = 1500) {
 
 // ── Normalisation ─────────────────────────────
 
+// Fits BOTH the z-score parameters used by the model (means/stds — matches the
+// paper's StandardScaler, Algorithm 1 Step 1) AND the raw min/max ranges used
+// only to lay out the sliders. Keeping both on one object avoids a second pass.
 function fitNormalizer(X) {
-  const d = X[0].length;
+  const d = X[0].length, n = X.length;
   const mins = Array(d).fill(Infinity);
   const maxs = Array(d).fill(-Infinity);
+  const sums = Array(d).fill(0);
   X.forEach(row => row.forEach((v, j) => {
     if (v < mins[j]) mins[j] = v;
     if (v > maxs[j]) maxs[j] = v;
+    sums[j] += v;
   }));
-  return { mins, maxs };
+  const means = sums.map(s => s / n);
+  const sq = Array(d).fill(0);
+  X.forEach(row => row.forEach((v, j) => { const dv = v - means[j]; sq[j] += dv * dv; }));
+  // Population std; guard against a constant feature (std = 0) → leave scale at 1.
+  const stds = sq.map(s => { const sd = Math.sqrt(s / n); return sd > 1e-12 ? sd : 1; });
+  return { mins, maxs, means, stds };
 }
 
+// Standardise to zero mean / unit variance (z-score), matching the paper.
+// Pearson correlations — and therefore the whole ΔR matrix — are invariant to
+// this choice, but the product interaction terms and the LR boundary are not,
+// so this keeps the live classifier faithful to the paper's feature space.
 function applyNorm(row, norm) {
-  return row.map((v, j) => {
-    const range = norm.maxs[j] - norm.mins[j];
-    return range === 0 ? 0 : (v - norm.mins[j]) / range;
-  });
+  return row.map((v, j) => (v - norm.means[j]) / norm.stds[j]);
 }
 
 function normalizeX(X, norm) {
@@ -514,6 +525,11 @@ function renderResult(probs, rawFeatures, normFeatures) {
       <div class="result-pct" style="color:${classColors[i]}">${pct}%</div>
     </div>`;
   });
+  if (probs.length > 2) {
+    html += `<div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:6px;line-height:1.5;">
+      Multi-class scores are a softmax over one-vs-rest logits — illustrative, not a calibrated posterior.
+    </div>`;
+  }
 
   if (SELECTED_PAIRS && SELECTED_PAIRS.length > 0) {
     const sp = SELECTED_PAIRS[0];
