@@ -285,12 +285,12 @@ function renderDatasetSelector() {
     const ds = window.DATASET_REGISTRY[key];
     const on = key === currentDatasetKey;
     return `<button onclick="loadDataset('${key}')" style="
-      font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.06em;
-      padding:7px 16px;border-radius:4px;cursor:pointer;line-height:1.5;
+      font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.06em;
+      padding:10px 20px;border-radius:8px;cursor:pointer;line-height:1.5;
       border:1px solid ${on ? 'var(--accent)' : 'var(--border)'};
-      background:${on ? 'rgba(224,255,83,0.1)' : 'var(--bg-card-2)'};
+      background:${on ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-card-2)'};
       color:${on ? 'var(--accent)' : 'var(--text-muted)'};transition:all 150ms;
-    ">${ds.label}<br><span style="font-size:8px;font-weight:400;opacity:0.7;">${ds.subLabel}</span></button>`;
+    ">${ds.label}<br><span style="font-size:10px;font-weight:400;opacity:0.7;">${ds.subLabel}</span></button>`;
   }).join('');
 }
 
@@ -401,9 +401,9 @@ function renderMiniHeatmap(dr) {
   const showDr = topF.map(fi => topF.map(fj => dr[fi][fj]));
   const showFeat = topF.map(fi => features[fi]);
 
-  const cw = maxShow <= 5 ? 44 : 36;
-  const lw = maxShow <= 5 ? 60 : 50;
-  const fs = maxShow <= 5 ? 9 : 8;
+  const cw = maxShow <= 5 ? 52 : 42;
+  const lw = maxShow <= 5 ? 70 : 58;
+  const fs = maxShow <= 5 ? 11 : 9;
 
   let html = `<div style="display:grid;grid-template-columns:${lw}px repeat(${maxShow},${cw}px);gap:2px;align-items:center;">`;
   html += '<div></div>';
@@ -415,15 +415,15 @@ function renderMiniHeatmap(dr) {
     for (let j = 0; j < maxShow; j++) {
       const v = showDr[i][j];
       if (i === j) {
-        html += `<div class="heatmap-cell" style="background:rgba(255,255,255,0.05);color:var(--text-muted);width:${cw}px;height:32px;font-size:${fs}px;" title="${showFeat[i]}">—</div>`;
+        html += `<div class="heatmap-cell" style="background:rgba(255,255,255,0.05);color:var(--text-muted);width:${cw}px;height:38px;font-size:${fs}px;" title="${showFeat[i]}">—</div>`;
       } else {
         const isSelected = SELECTED_PAIRS.some(p =>
           (p.i === topF[i] && p.j === topF[j]) || (p.i === topF[j] && p.j === topF[i])
         );
         const alpha = Math.min(0.9, v * 1.4);
-        const bg = isSelected ? `rgba(224,255,83,${alpha})` : `rgba(59,130,246,${alpha})`;
+        const bg = isSelected ? `rgba(var(--accent-rgb),${alpha})` : `rgba(var(--blue-rgb),${alpha})`;
         const tc = (v > 0.35 || (isSelected && v > 0.2)) ? '#000' : 'var(--text-muted)';
-        html += `<div class="heatmap-cell" style="background:${bg};color:${tc};width:${cw}px;height:32px;font-size:${fs}px;"
+        html += `<div class="heatmap-cell" style="background:${bg};color:${tc};width:${cw}px;height:38px;font-size:${fs}px;"
           title="${showFeat[i]} × ${showFeat[j]}: ΔR=${v.toFixed(3)}">${v.toFixed(2)}</div>`;
       }
     }
@@ -539,26 +539,26 @@ function renderHeatmap() {
     f.replace(' err','·e').replace('mean ','m·').replace('worst ','w·').replace(' pts','·p')
   );
 
-  let html = `<div style="display:grid;grid-template-columns:72px repeat(${d},48px);gap:2px;align-items:center;">`;
+  let html = `<div style="display:grid;grid-template-columns:84px repeat(${d},54px);gap:3px;align-items:center;">`;
   html += '<div></div>';
   shortLabels.forEach(l => {
-    html += `<div class="heatmap-label" style="text-align:center;padding:2px 0;font-size:7px;">${l}</div>`;
+    html += `<div class="heatmap-label" style="text-align:center;padding:2px 0;font-size:9px;">${l}</div>`;
   });
   for (let i = 0; i < d; i++) {
-    html += `<div class="heatmap-label" style="text-align:right;padding-right:6px;font-size:7px;">${shortLabels[i]}</div>`;
+    html += `<div class="heatmap-label" style="text-align:right;padding-right:6px;font-size:9px;">${shortLabels[i]}</div>`;
     for (let j = 0; j < d; j++) {
       const v = BC_DELTA_R[i][j];
       if (i === j) {
-        html += `<div class="heatmap-cell" style="background:rgba(255,255,255,0.04);color:var(--text-muted);font-size:8px;width:48px;height:36px;">—</div>`;
+        html += `<div class="heatmap-cell" style="background:rgba(255,255,255,0.04);color:var(--text-muted);font-size:9px;width:54px;height:40px;">—</div>`;
       } else {
         const alpha = Math.min(0.92, v * 1.5);
         const textColor = v > 0.4 ? '#000' : 'var(--text-muted)';
         const bg = v > 0.5
-          ? `rgba(224,255,83,${alpha})`
+          ? `rgba(var(--accent-rgb),${alpha})`
           : v > 0.25
-            ? `rgba(59,130,246,${alpha * 0.8})`
+            ? `rgba(var(--blue-rgb),${alpha * 0.8})`
             : `rgba(255,255,255,${alpha * 0.3})`;
-        html += `<div class="heatmap-cell" style="background:${bg};color:${textColor};font-size:8px;width:48px;height:36px;"
+        html += `<div class="heatmap-cell" style="background:${bg};color:${textColor};font-size:9px;width:54px;height:40px;"
           onmouseenter="showTooltip(event,'${BC_FEATURES[i]} × ${BC_FEATURES[j]}',${v})"
           onmouseleave="hideTooltip()">${v.toFixed(2)}</div>`;
       }
@@ -600,31 +600,31 @@ function renderKChart() {
   const ch = H - pad.top - pad.bottom;
 
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#161616'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#16181D'; ctx.fillRect(0, 0, W, H);
 
   const minAcc = 92, maxAcc = 98.5, minK = 0, maxK = 80;
   const px = k => pad.left + (k - minK) / (maxK - minK) * cw;
   const py = acc => pad.top + ch - (acc - minAcc) / (maxAcc - minAcc) * ch;
 
-  ctx.strokeStyle = '#2A2A2A'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#2C303A'; ctx.lineWidth = 1;
   [93, 94, 95, 96, 97, 98].forEach(acc => {
     ctx.beginPath(); ctx.moveTo(pad.left, py(acc)); ctx.lineTo(pad.left + cw, py(acc)); ctx.stroke();
-    ctx.fillStyle = '#888888'; ctx.font = '9px Space Mono';
+    ctx.fillStyle = '#8A90A0'; ctx.font = '10px Space Mono';
     ctx.textAlign = 'right'; ctx.fillText(acc + '%', pad.left - 6, py(acc) + 3);
   });
   [0, 10, 20, 30, 40, 50, 60, 70, 80].forEach(k => {
     ctx.beginPath(); ctx.moveTo(px(k), pad.top); ctx.lineTo(px(k), pad.top + ch); ctx.stroke();
-    ctx.fillStyle = '#888888'; ctx.font = '9px Space Mono';
+    ctx.fillStyle = '#8A90A0'; ctx.font = '10px Space Mono';
     ctx.textAlign = 'center'; ctx.fillText('k=' + k, px(k), pad.top + ch + 18);
   });
 
-  ctx.strokeStyle = '#F14336'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = '#F1573E'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
   ctx.beginPath(); ctx.moveTo(pad.left, py(92.97)); ctx.lineTo(pad.left + cw, py(92.97)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = '#F14336'; ctx.font = '9px Space Mono'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#F1573E'; ctx.font = '10px Space Mono'; ctx.textAlign = 'left';
   ctx.fillText('GNB 92.97%', pad.left + 4, py(92.97) - 4);
 
-  ctx.strokeStyle = '#E0FF53'; ctx.lineWidth = 2;
+  ctx.strokeStyle = '#FFC24B'; ctx.lineWidth = 2;
   ctx.beginPath();
   K_BREAST.forEach(({ k, acc }, idx) => { if (idx === 0) ctx.moveTo(px(k), py(acc)); else ctx.lineTo(px(k), py(acc)); });
   ctx.stroke();
@@ -635,21 +635,21 @@ function renderKChart() {
   ctx.lineTo(px(K_BREAST[0].k), py(minAcc));
   ctx.closePath();
   const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
-  grad.addColorStop(0, 'rgba(224,255,83,0.15)');
-  grad.addColorStop(1, 'rgba(224,255,83,0)');
+  grad.addColorStop(0, 'rgba(255,194,75,0.16)');
+  grad.addColorStop(1, 'rgba(255,194,75,0)');
   ctx.fillStyle = grad; ctx.fill();
 
   K_BREAST.forEach(({ k, acc }) => {
     const isOpt = k === 45;
     ctx.beginPath(); ctx.arc(px(k), py(acc), isOpt ? 5 : 3, 0, Math.PI * 2);
-    ctx.fillStyle = isOpt ? '#E0FF53' : '#88A020'; ctx.fill();
+    ctx.fillStyle = isOpt ? '#FFC24B' : '#A77E2E'; ctx.fill();
     if (isOpt) {
-      ctx.fillStyle = '#E0FF53'; ctx.font = 'bold 9px Space Mono'; ctx.textAlign = 'center';
+      ctx.fillStyle = '#FFC24B'; ctx.font = 'bold 10px Space Mono'; ctx.textAlign = 'center';
       ctx.fillText('★ 97.72%', px(k), py(acc) - 10);
     }
   });
 
-  ctx.fillStyle = '#888888'; ctx.font = '9px Space Mono';
+  ctx.fillStyle = '#8A90A0'; ctx.font = '10px Space Mono';
   ctx.textAlign = 'center'; ctx.fillText('NUMBER OF SELECTED PAIRS  k', pad.left + cw / 2, H - 4);
   ctx.save(); ctx.translate(10, pad.top + ch / 2); ctx.rotate(-Math.PI / 2);
   ctx.fillText('5-FOLD CV ACCURACY  (%)', 0, 0); ctx.restore();
