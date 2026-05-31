@@ -4,7 +4,10 @@
       "Bash(dir)",
       "Bash(node --check app.js)",
       "Bash(node --check data.js)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python -c \"import sklearn, numpy, scipy; print\\('sklearn:', sklearn.__version__\\); print\\('numpy:', numpy.__version__\\); print\\('scipy:', scipy.__version__\\)\")",
+      "Bash(uv venv *)",
+      "Bash(uv pip *)"
     ]
   }
 }
