@@ -79,15 +79,21 @@ whose pairwise Pearson correlation changes most across class boundaries and
 enriches the feature space with their product terms before discriminative
 classification.
 The pair selection criterion, the Mean Absolute Context-Shift score
-($\Delta R_{ij}$), requires no iterative optimization and no gradient
+($\Delta R_{ij}$), requires no iterative optimisation and no gradient
 computation for the screening step.
-We evaluate CS-LLN against Gaussian Naive Bayes, Linear Discriminant
-Analysis, Logistic Regression, and a Linear SVM on three benchmark
-UCI datasets using five-fold stratified cross-validation.
-CS-LLN achieves the highest accuracy on two of three datasets, with a
-63 percent reduction in classification error relative to Naive Bayes
-on Breast Cancer Wisconsin and a log-loss improvement of approximately
-ten times.
+We evaluate CS-LLN against six baselines---Gaussian Naive Bayes, Linear
+Discriminant Analysis, Logistic Regression, Linear SVM, Random Forest,
+and XGBoost---on three benchmark UCI datasets using five-fold stratified
+cross-validation.
+On Breast Cancer Wisconsin, CS-LLN achieves 97.72\% accuracy, significantly
+outperforming Gaussian Naive Bayes ($p < 0.001$, McNemar), Random Forest
+($p = 0.014$), and XGBoost ($p = 0.031$), while reducing log-loss by a
+factor of $9.91\times$ relative to GNB.
+On Wine Recognition, CS-LLN achieves 98.89\%, the highest accuracy among
+all compared methods.
+Ablation experiments confirm that the $\Delta R_{ij}$ ranking consistently
+outperforms random pair selection, and sparse interaction enrichment
+outperforms full quadratic expansion on all three datasets.
 A planned real-world validation on a student academic performance dataset
 is described with the full experimental protocol.
 \end{abstract}
