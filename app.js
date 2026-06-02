@@ -275,8 +275,6 @@ function updateDatasetUI() {
   const set = (id, v) => { const el = $(id); if (el) el.textContent = v; };
 
   set('ds-badge', ds.label);
-  const desc = $('ds-desc');
-  if (desc) desc.textContent = ds.description;
 
   set('stat-features', d);
   set('stat-features-sub', ds.features.slice(0, 3).map(f => f.split(' ')[0].toUpperCase().substring(0, 4)).join('·') + (d > 3 ? '…' : ''));
@@ -296,12 +294,14 @@ function renderDatasetSelector() {
     const ds = window.DATASET_REGISTRY[key];
     const on = key === currentDatasetKey;
     return `<button onclick="loadDataset('${key}')" style="
+      flex:1;min-width:0;
       font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.06em;
-      padding:10px 20px;border-radius:8px;cursor:pointer;line-height:1.5;
+      padding:10px 8px;border-radius:8px;cursor:pointer;
       border:1px solid ${on ? 'var(--accent)' : 'var(--border)'};
       background:${on ? 'rgba(var(--accent-rgb),0.12)' : 'var(--bg-card-2)'};
       color:${on ? 'var(--accent)' : 'var(--text-muted)'};transition:all 150ms;
-    ">${ds.label}<br><span style="font-size:10px;font-weight:400;opacity:0.7;">${ds.subLabel}</span></button>`;
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    ">${ds.label}</button>`;
   }).join('');
 }
 

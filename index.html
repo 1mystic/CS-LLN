@@ -11,7 +11,7 @@
 <div class="shell">
 
   <!-- ── Sidebar ──────────────────────────────── -->
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar__logo">
       <span class="sidebar__logo-mark">CS</span>
       <div class="sidebar__logo-name">CS-LLN<br>Inspector</div>
@@ -85,21 +85,15 @@
       <!-- Page header -->
       <div class="page-header">
         <div class="page-header__eyebrow">LIVE CLASSIFIER</div>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
-          <span style="font-family:var(--font-mono);font-size:30px;font-weight:700;color:var(--accent);letter-spacing:-0.02em;">CS-LLN</span>
-          <span style="font-family:var(--font-mono);font-size:30px;font-weight:700;color:var(--text-primary);letter-spacing:-0.01em;">Inspector</span>
+        <div class="inspector-title-row">
+          <span class="inspector-title-cs" style="color:var(--accent);">CS-LLN</span>
+          <span class="inspector-title-name" style="color:var(--text-primary);">Inspector</span>
           <span class="badge badge--muted" id="ds-badge">IRIS</span>
-        </div>
-        <div class="page-header__sub" id="ds-desc">
-          Context-Shifting Log-Linear Network — select a dataset below and adjust feature sliders to see real-time CS-LLN classification with interaction terms.
         </div>
       </div>
 
       <!-- Dataset selector -->
-      <div id="dataset-selector" style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;"></div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);line-height:1.6;margin-bottom:14px;max-width:760px;">
-        NOTE — Iris is the exact Fisher (1936) data. Wine &amp; Breast Cancer here are <span style="color:var(--blue)">seeded synthetic proxies</span> that reproduce the paper&rsquo;s class-conditional correlation structure for live exploration. The headline accuracies come from the <span style="color:var(--accent)">full UCI datasets</span> — see the BENCHMARK tab.
-      </div>
+      <div id="dataset-selector" style="display:flex;gap:8px;margin-bottom:8px;"></div>
 
       <!-- Stat row -->
       <div class="stat-row stat-row--4">
