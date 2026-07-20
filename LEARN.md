@@ -256,6 +256,74 @@ small (within one std). The big, unambiguous win is over *Naive Bayes*, which
 is the method it is designed to fix. The ~10× log-loss claim is *versus GNB*;
 against LR the calibration is about equal.
 
+### 3.8 Real-world validation — the student study (COMPLETED)
+
+The paper's headline validation used to be "planned". **It is now done.** CS-LLN
+was applied to a real institutional dataset: the sessional (internal-assessment)
+marks of **N = 213 Computer Science undergraduates at LNCT Bhopal**, predicting
+each student's final performance band from mid-sem, quiz, and practical-lab
+marks. This is the messy-real-data test that clean UCI benchmarks can't give you.
+
+**The setup**
+
+- **Features (`d = 14`):** four theory mid-sems, four quizzes, and six practical
+  lab / term-work marks — all *continuous* marks, so Pearson correlation applies
+  directly (no polychoric needed for *this* study — that caveat is for a future
+  survey-based version).
+- **Classes (`C = 3`), from semester CGPA:**
+  - **High** (CGPA ≥ 7.8) — 69 students
+  - **Average** (7.0 ≤ CGPA < 7.8) — 94 students
+  - **At-Risk** (CGPA < 7.0) — 50 students
+- **Protocol:** 5-fold stratified CV; `k = 5` chosen by inner CV; standardisation
+  and screening fit on training folds only (no leakage). Data anonymized (names
+  and enrolment numbers stripped).
+
+**The results (real dataset, 5-fold CV)**
+
+| Model | Accuracy | Log-Loss | Macro-F1 |
+|---|---|---|---|
+| Gaussian NB | 60.56% | 1.8669 | 0.5858 |
+| Random Forest | 62.44% | 0.7900 | 0.6084 |
+| XGBoost | 63.36% | 1.1646 | 0.6270 |
+| **CS-LLN (k=5)** | **66.69%** | **0.7768** | **0.6469** |
+| LDA | 67.57% | 0.8063 | 0.6609 |
+| Linear SVM | 68.53% | 0.7305 | 0.6601 |
+| Logistic Reg. | 69.48% | 0.7213 | 0.6737 |
+
+**How to read this honestly (viva-ready):**
+
+1. **CS-LLN beats every "black-box" baseline it's meant to beat** — Naive Bayes
+   by **+6.13 pp**, Random Forest by +4.25 pp, XGBoost by +3.33 pp. On moderate
+   tabular data, tree ensembles struggle to capture the *joint linear* interaction
+   that CS-LLN's product terms represent directly.
+2. **The plain discriminative linears (LR, SVM, LDA) edge it out** by ~1–3 pp.
+   Say "competitive", not "better" — the margin is within noise, and CS-LLN's
+   value here is *interpretability*, not topping the table.
+3. **The real win is calibration.** GNB's log-loss is a dreadful `1.8669` — it is
+   *confidently wrong* because it double-counts the coupled quiz/practical marks.
+   Adding just five correlation-shifting product terms cuts log-loss to `0.7768`
+   (**2.40× better**). For an *early-warning* tool, trustworthy risk probabilities
+   matter more than raw accuracy — this is the point to stress.
+
+**What ΔR discovered (the interpretability payoff)**
+
+The top correlation-shifting pairs are dominated by **CS503 quiz marks coupled
+with practical-lab marks**:
+
+| Rank | Pair | ΔR |
+|---|---|---|
+| 1 | CS503 quiz × CS502 lab | 0.4501 |
+| 2 | CS502 quiz × CS503 quiz | 0.4408 |
+| 3 | CS503 quiz × CS508 lab | 0.4370 |
+| 4 | CS503 quiz × CS506 lab | 0.4008 |
+| 5 | CS501 mid × CS506 lab | 0.3991 |
+
+This is **Tinto's withdrawal spiral**, recovered from marks alone: for *at-risk*
+students, quiz engagement and lab engagement collapse *together* (high
+within-class correlation); for *high performers* the same pair is *decoupled*
+(uniformly strong). That class-specific shift is invisible to Naive Bayes and is
+exactly what ΔR is built to surface — no survey, no manual feature engineering.
+
 ---
 
 ## Part 4 — How the website implements it
@@ -297,7 +365,31 @@ vanilla-JS recreation so users can *feel* the algorithm. Load order matters:
   reasonable illustration but *not* a perfectly calibrated posterior. The UI
   now says so.
 
-### 4.3 Design
+### 4.3 The STUDENT STUDY tab (live model on real-world data)
+
+A dedicated **STUDENT STUDY** page (new nav tab) presents the completed
+validation from §3.8 and lets you *interact* with it:
+
+- **Motivation panel** — the withdrawal-spiral explanation and the CGPA-band
+  class definitions.
+- **Live Early-Warning Predictor** — a CS-LLN model trained *in your browser* on
+  a seeded student proxy. Move sliders for the key sessional marks (CS501 mid,
+  CS502/CS503 quiz, CS502/CS506/CS508 labs) and the predicted band
+  (High / Average / **At-Risk ⚠**) updates live, with class probabilities and the
+  live ΔR-selected pairs.
+- **Results table + accuracy bars** — the *real* dataset numbers from §3.8.
+- **Top-5 ΔR pairs** with plain-English educational interpretation.
+
+**Honesty policy (say this if asked):** the *tables* on the page are the **real
+anonymized-dataset** results from the paper. The *live predictor* trains on a
+**seeded synthetic proxy** that reproduces the study's class-conditional
+correlation-shift structure (the raw student marks stay private) — the same
+policy already used for the Wine and Breast-Cancer live demos. The proxy is
+verified to reproduce the paper's key structure: 69/94/50 class balance and a
+CS503-quiz-dominated ΔR ranking. The student dataset is also selectable from the
+LIVE INSPECTOR's dataset picker, using the identical in-browser engine.
+
+### 4.4 Design
 
 The interface uses a dark “PACEOS” theme. The palette was refreshed to a
 **warm amber accent + teal secondary** (replacing the old lime/blue), with
@@ -316,8 +408,9 @@ Owning your limitations is the single biggest viva-score multiplier.
    across classes (e.g. circular in one class, linear in another) has `ΔR ≈ 0`
    and is missed. Fix: a distance-correlation or rank-correlation version.
 2. **Continuous features only.** Pearson is not meaningful for binary/categorical
-   features. The planned student-survey study (mostly Likert/binary) will need
-   **polychoric / point-biserial** correlations instead.
+   features. The completed student study (§3.8) used *continuous marks*, so Pearson
+   applied cleanly; but a *future survey-based* version (Likert/binary items) would
+   need **polychoric / point-biserial** correlations instead.
 3. **Needs enough samples per class.** Correlation estimates from few samples
    are noisy. Rule of thumb: at least `2d` samples per class.
 4. **No significance control.** With `C(d,2)` pairs ranked from finite data,
@@ -434,8 +527,10 @@ generalises that principle into an interaction-screening filter for supervised
 classification.
 
 **Q18. What's next?**
-Polychoric correlations for ordinal/binary features (for the student-performance
-study), a nonlinear (distance-correlation) ΔR, significance/FDR control, and
+The real-world student-performance validation is now *complete* (§3.8: N=213,
+CS-LLN 66.69%, beats NB/RF/XGBoost, recovers Tinto's withdrawal spiral from
+marks). Next: polychoric correlations to extend it to a survey-based (Likert)
+version, a nonlinear (distance-correlation) ΔR, significance/FDR control, and
 generalisation bounds for the enriched space.
 
 ---

@@ -3,7 +3,7 @@
    ───────────────────────────────────────────── */
 
 // ── Nav ──────────────────────────────────────
-const pages = ['inspector', 'matrix', 'benchmark', 'pipeline', 'about'];
+const pages = ['inspector', 'matrix', 'benchmark', 'pipeline', 'student', 'about'];
 let currentPage = 'inspector';
 
 function setPage(id) {
@@ -13,6 +13,7 @@ function setPage(id) {
   if (id === 'matrix') renderHeatmap();
   if (id === 'benchmark') renderBenchmark();
   if (id === 'inspector') runDemo();
+  if (id === 'student') renderStudentPage();
 }
 
 // ── Pre-baked Breast Cancer ΔRij data (Fig. 2) ──
@@ -90,6 +91,32 @@ const K_BREAST = [
   {k:1,acc:97.37},{k:5,acc:97.50},{k:10,acc:97.58},{k:15,acc:97.62},
   {k:20,acc:97.66},{k:30,acc:97.70},{k:40,acc:97.71},{k:45,acc:97.72},
   {k:50,acc:97.65},{k:60,acc:97.50},{k:70,acc:97.20},{k:78,acc:96.49}
+];
+
+// ── Real student-study results (paper Table: 5-fold CV on N=213) ──
+// These are the REAL anonymized-dataset numbers, shown as the authoritative
+// result. The live predictor on the page trains on a seeded proxy separately.
+const STUDENT_RESULTS = {
+  best: 'CS-LLN',                 // highlighted row (the method under study)
+  leader: 'Logistic Reg.',        // overall top accuracy (shown honestly)
+  rows: [
+    { model: 'Gaussian NB',   acc: 60.56, std: 5.42, loss: 1.8669, f1: 0.5858 },
+    { model: 'Random Forest', acc: 62.44, std: 5.32, loss: 0.7900, f1: 0.6084 },
+    { model: 'XGBoost',       acc: 63.36, std: 3.42, loss: 1.1646, f1: 0.6270 },
+    { model: 'CS-LLN (k=5)',  acc: 66.69, std: 6.88, loss: 0.7768, f1: 0.6469 },
+    { model: 'LDA',           acc: 67.57, std: 8.64, loss: 0.8063, f1: 0.6609 },
+    { model: 'Linear SVM',    acc: 68.53, std: 4.18, loss: 0.7305, f1: 0.6601 },
+    { model: 'Logistic Reg.', acc: 69.48, std: 7.09, loss: 0.7213, f1: 0.6737 },
+  ]
+};
+
+// ── Real top-5 correlation-shifting pairs (paper Table) ──
+const STUDENT_PAIRS = [
+  { pair: 'CS503 quiz × CS502 lab',  score: 0.4501, note: 'Quiz engagement and database-lab work couple in at-risk students, decouple in high performers.' },
+  { pair: 'CS502 quiz × CS503 quiz', score: 0.4408, note: 'Cross-subject quiz performance moves together only when a student is disengaging.' },
+  { pair: 'CS503 quiz × CS508 lab',  score: 0.4370, note: 'Quiz scores track Subject-508 practical work class-specifically.' },
+  { pair: 'CS503 quiz × CS506 lab',  score: 0.4008, note: 'Quiz marks and Subject-506 lab marks shift their correlation across bands.' },
+  { pair: 'CS501 mid × CS506 lab',   score: 0.3991, note: 'Theory-of-Computation mid-sem links to practical marks differently by class.' },
 ];
 
 // ── CS-LLN Math ───────────────────────────────
@@ -290,7 +317,7 @@ function updateDatasetUI() {
 function renderDatasetSelector() {
   const el = document.getElementById('dataset-selector');
   if (!el || !window.DATASET_REGISTRY) return;
-  el.innerHTML = ['iris', 'wine', 'breast_cancer'].map(key => {
+  el.innerHTML = ['iris', 'wine', 'breast_cancer', 'student'].map(key => {
     const ds = window.DATASET_REGISTRY[key];
     const on = key === currentDatasetKey;
     return `<button onclick="loadDataset('${key}')" style="
@@ -738,6 +765,223 @@ function renderBenchmark() {
     html += '</tbody></table>';
     el.innerHTML = html;
   });
+}
+
+// ══════════════════════════════════════════════
+// STUDENT STUDY PAGE — live model + rendering
+// ══════════════════════════════════════════════
+
+// Curated feature indices (into the 14-feature student vector) exposed as
+// sliders — the union of features appearing in the top ΔR pairs. Every other
+// feature is held at the cohort mean (z-score 0) during live prediction.
+const STU_SLIDER_IDX = [0, 3, 5, 9, 11, 13];
+
+let STU = null;              // {ds, norm, deltaR, pairs, models, d}
+let studentStaticRendered = false;
+
+function initStudentModel() {
+  if (!window.DATASET_REGISTRY || !window.DATASET_REGISTRY.student) return;
+  const ds = window.DATASET_REGISTRY.student;
+  const X = ds.X, y = ds.y, d = ds.features.length;
+  const norm = fitNormalizer(X);
+  const Xn = normalizeX(X, norm);
+  const corrs = classCorrelations(Xn, y, d);
+  const deltaR = computeDeltaR(corrs);
+  const pairs = topK(deltaR, ds.defaultK, d);
+  const Xe = enrich(Xn, pairs);
+  const models = trainOvR(Xe, y);
+  STU = { ds, norm, deltaR, pairs, models, d };
+}
+
+function renderStudentPage() {
+  if (!STU) initStudentModel();
+  if (!STU) return;
+  if (!studentStaticRendered) {
+    renderStudentResultsTable();
+    renderStudentAccBars();
+    renderStudentPairs();
+    renderStudentSliders();
+    studentStaticRendered = true;
+  }
+  runStudentDemo();
+}
+
+function renderStudentSliders() {
+  const el = document.getElementById('stu-sliders');
+  if (!el || !STU) return;
+  const { ds, norm } = STU;
+  let html = '';
+  STU_SLIDER_IDX.forEach(i => {
+    const lo = norm.mins[i], hi = norm.maxs[i], def = norm.means[i];
+    const step = sliderStep(lo, hi);
+    const pct = ((def - lo) / (hi - lo) * 100).toFixed(1);
+    const unit = ds.units[i] ? ' (' + ds.units[i] + ')' : '';
+    html += `<div class="slider-row">
+      <div class="slider-row__header">
+        <span class="slider-row__label">${ds.features[i].toUpperCase()}${unit}</span>
+        <span class="slider-row__value" id="stu-val-${i}">${fmtVal(def)}</span>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" id="stu-sl-${i}" min="${lo}" max="${hi}" step="${step}" value="${def}" />
+        <div class="slider-track" id="stu-track-${i}" style="width:${pct}%"></div>
+        <div class="slider-thumb" id="stu-thumb-${i}" style="left:${pct}%"></div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+
+  STU_SLIDER_IDX.forEach(i => {
+    const sl = document.getElementById('stu-sl-' + i);
+    if (!sl) return;
+    sl.addEventListener('input', () => {
+      const v = parseFloat(sl.value);
+      const lo = parseFloat(sl.min), hi = parseFloat(sl.max);
+      const vl = document.getElementById('stu-val-' + i);
+      const track = document.getElementById('stu-track-' + i);
+      const thumb = document.getElementById('stu-thumb-' + i);
+      if (vl) vl.textContent = fmtVal(v);
+      const pct = (v - lo) / (hi - lo) * 100;
+      if (track) track.style.width = pct + '%';
+      if (thumb) thumb.style.left = pct + '%';
+      runStudentDemo();
+    });
+  });
+}
+
+function runStudentDemo() {
+  if (!STU) return;
+  const { norm, pairs, models, d } = STU;
+  // Build the full 14-feature raw vector: sliders where exposed, mean otherwise
+  const raw = norm.means.slice();
+  STU_SLIDER_IDX.forEach(i => {
+    const sl = document.getElementById('stu-sl-' + i);
+    if (sl) raw[i] = parseFloat(sl.value);
+  });
+  const xn = applyNorm(raw, norm);
+  const xe = enrich([xn], pairs)[0];
+  const probs = predictProbaOvR(xe, models);
+  renderStudentResult(probs);
+  renderStudentLivePairs();
+}
+
+function renderStudentResult(probs) {
+  const el = document.getElementById('stu-result');
+  if (!el || !STU) return;
+  const { ds } = STU;
+  const top = probs.indexOf(Math.max(...probs));
+  const conf = (probs[top] * 100).toFixed(1);
+  const color = ds.classColors[top];
+  const isRisk = top === 2;
+
+  let html = `<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px;">
+    <span class="result-class" style="color:${color};">${ds.classes[top]}</span>
+    <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-muted);">${conf}% CONFIDENCE</span>
+  </div>`;
+
+  if (isRisk) {
+    html += `<div style="font-family:var(--font-mono);font-size:11px;color:var(--danger);letter-spacing:0.05em;margin-bottom:14px;">
+      ⚠ EARLY-WARNING FLAG — recommend intervention
+    </div>`;
+  }
+
+  probs.forEach((p, c) => {
+    const pct = (p * 100).toFixed(1);
+    html += `<div class="result-bar-row">
+      <span style="min-width:78px;font-family:var(--font-mono);font-size:11px;color:${ds.classColors[c]};">${ds.classes[c]}</span>
+      <div style="flex:1;height:8px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${ds.classColors[c]};"></div>
+      </div>
+      <span style="min-width:44px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">${pct}%</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderStudentLivePairs() {
+  const el = document.getElementById('stu-live-pairs');
+  if (!el || !STU) return;
+  const { ds, deltaR, pairs } = STU;
+  const maxScore = pairs[0] ? deltaR[pairs[0].i][pairs[0].j] : 1;
+  let html = '';
+  pairs.forEach(({ i, j }) => {
+    const score = deltaR[i][j];
+    const w = Math.max(4, (score / maxScore) * 100);
+    html += `<div class="pair-row" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="flex:1;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">${ds.features[i]} × ${ds.features[j]}</span>
+      <div style="width:70px;height:5px;background:var(--border);border-radius:2px;overflow:hidden;">
+        <div style="width:${w}%;height:100%;background:var(--accent);"></div>
+      </div>
+      <span style="min-width:40px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--accent);">${score.toFixed(3)}</span>
+    </div>`;
+  });
+  html += `<div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-top:6px;letter-spacing:0.04em;">
+    ΔR computed live on the seeded proxy — ranking mirrors the real study.
+  </div>`;
+  el.innerHTML = html;
+}
+
+function renderStudentResultsTable() {
+  const el = document.getElementById('stu-results-table');
+  if (!el) return;
+  let html = `<table class="cmp-table"><thead><tr>
+    <th>MODEL</th><th>ACCURACY ± STD</th><th>LOG-LOSS</th><th>MACRO-F1</th>
+  </tr></thead><tbody>`;
+  STUDENT_RESULTS.rows.forEach(r => {
+    const isCS = r.model.includes('CS-LLN');
+    html += `<tr class="${isCS ? 'best' : ''}">
+      <td>${r.model}</td>
+      <td>${r.acc.toFixed(2)}% ± ${r.std.toFixed(2)}</td>
+      <td>${r.loss.toFixed(4)}</td>
+      <td>${r.f1.toFixed(4)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+function renderStudentAccBars() {
+  const el = document.getElementById('stu-acc-bars');
+  if (!el) return;
+  const min = 58, max = 72;
+  const rows = STUDENT_RESULTS.rows.map(r => {
+    const isCS = r.model.includes('CS-LLN');
+    const color = isCS ? 'var(--accent)'
+      : r.model === STUDENT_RESULTS.leader ? 'var(--blue)'
+      : 'var(--text-muted)';
+    const pct = Math.min(100, Math.max(0, (r.acc - min) / (max - min) * 100));
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+      <span style="font-family:var(--font-mono);font-size:10px;color:${color};min-width:96px;font-weight:700;">${r.model}</span>
+      <div style="flex:1;height:6px;background:var(--border);border-radius:2px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${color};"></div>
+      </div>
+      <span style="font-family:var(--font-mono);font-size:10px;color:${color};min-width:46px;text-align:right;">${r.acc.toFixed(2)}%</span>
+    </div>`;
+  }).join('');
+  el.innerHTML = rows;
+}
+
+function renderStudentPairs() {
+  const el = document.getElementById('stu-pairs');
+  if (!el) return;
+  const maxScore = STUDENT_PAIRS[0].score;
+  let html = '';
+  STUDENT_PAIRS.forEach((p, idx) => {
+    const w = (p.score / maxScore) * 100;
+    html += `<div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--accent);min-width:20px;">${idx + 1}</span>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <span style="font-family:var(--font-mono);font-size:12px;color:var(--text-primary);font-weight:700;">${p.pair}</span>
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--accent);">ΔR = ${p.score.toFixed(4)}</span>
+        </div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:6px;max-width:220px;">
+          <div style="width:${w}%;height:100%;background:var(--accent);"></div>
+        </div>
+        <div style="font-family:var(--font-ui);font-size:13px;color:var(--text-secondary);line-height:1.5;">${p.note}</div>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
 }
 
 // ── Tooltip ───────────────────────────────────

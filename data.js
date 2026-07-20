@@ -233,6 +233,83 @@ const IRIS_Y = [
 
 
 // ════════════════════════════════════════════
+// 4. STUDENT ACADEMIC PERFORMANCE  (213×14, seeded)
+//    Seeded synthetic proxy of the REAL, COMPLETED study on
+//    N=213 CSE students at LNCT Bhopal (paper Section: Real-World
+//    Validation). Reproduces the study's class-conditional
+//    correlation-shift structure so the live demo is faithful,
+//    but is NOT the raw anonymized marks (which stay private).
+//
+//    14 sessional features (theory mid-sems, quizzes, practicals).
+//    Classes: 0=High (CGPA≥7.8, 69), 1=Average (7.0–7.8, 94),
+//             2=At-Risk (CGPA<7.0, 50).
+//
+//    Key mechanism — "withdrawal spiral" (Tinto): in At-Risk
+//    students, quiz and practical marks collapse together (a shared
+//    disengagement factor → high within-class correlation). In High
+//    performers the same pairs are decoupled. That class-specific
+//    shift is exactly what ΔRij screens for, and it makes the
+//    CS503_quiz × practical pairs dominate the ranking, matching
+//    the paper's Table of top correlation-shifting pairs.
+// ════════════════════════════════════════════
+(function buildStudent() {
+  const rng = mkrng(0x57DE7A21);          // fixed seed → deterministic
+  const MAX = [20,10,20,10,20,10,20,10,20,20,20,20,100,50];
+  const d = 14;
+
+  // Feature indices used for the engineered correlation shifts
+  const MID501 = 0, QUIZ502 = 3, QUIZ503 = 5, PR502 = 9, PR506 = 11, PR508 = 13;
+
+  // Per class: [n samples, mean fraction of max, std fraction of max]
+  const CLS = [
+    { n: 69, mf: 0.80, sf: 0.10 },   // High performers
+    { n: 94, mf: 0.63, sf: 0.13 },   // Average
+    { n: 50, mf: 0.45, sf: 0.17 },   // At-Risk
+  ];
+
+  window.STUDENT_X = [];
+  window.STUDENT_Y = [];
+
+  CLS.forEach((cfg, ci) => {
+    for (let s = 0; s < cfg.n; s++) {
+      // Independent base draws around the class mean
+      const row = MAX.map(m => gauss(rng, cfg.mf * m, cfg.sf * m));
+
+      // Helper: pull feature `idx` toward a shared latent with weight `load`
+      const couple = (idx, latent, load) => {
+        const mu = cfg.mf * MAX[idx], sg = cfg.sf * MAX[idx];
+        row[idx] = mu + sg * (load * latent + Math.sqrt(1 - load * load) * gauss(rng, 0, 1));
+      };
+
+      if (ci === 2) {
+        // At-Risk: withdrawal spiral — CS503 quiz drives the practicals
+        // and the other quiz down together (strong within-class coupling).
+        const disengage = gauss(rng, 0, 1);
+        couple(QUIZ503, disengage, 0.86);
+        couple(PR502,   disengage, 0.82);
+        couple(QUIZ502, disengage, 0.80);
+        couple(PR508,   disengage, 0.78);
+        couple(PR506,   disengage, 0.75);
+        // CS501 mid stays independent of PR506 in this class (decoupled)
+      } else if (ci === 0) {
+        // High performers: the CS503-quiz hub pairs are decoupled
+        // (uniformly strong marks, independent draws) — left as base draws.
+        // But mid-sem theory and practical lab track together here:
+        const diligence = gauss(rng, 0, 1);
+        couple(MID501, diligence, 0.72);
+        couple(PR506,  diligence, 0.70);
+      }
+      // Average class: mostly independent (base draws) — the "in-between".
+
+      for (let j = 0; j < d; j++) row[j] = clip(row[j], 0, MAX[j]);
+      window.STUDENT_X.push(row.map(v => +v.toFixed(2)));
+      window.STUDENT_Y.push(ci);
+    }
+  });
+})();
+
+
+// ════════════════════════════════════════════
 // Dataset registry
 // ════════════════════════════════════════════
 window.DATASET_REGISTRY = {
@@ -280,5 +357,21 @@ window.DATASET_REGISTRY = {
     get y() { return window.BC_Y; },
     defaultK: 4,
     bestResult: '97.72% (CS-LLN) · 63% error ↓ vs GNB',
+  },
+  student: {
+    key: 'student',
+    label: 'STUDENT',
+    subLabel: 'LNCT study · seeded proxy',
+    description: 'N=213, d=14, C=3  ·  Real completed LNCT Bhopal sessional-marks study. Live demo uses a seeded synthetic proxy that reproduces the study’s class-conditional correlation-shift structure (the “withdrawal spiral”); the paper’s numbers (CS-LLN 66.69%, LR 69.48%) come from the real anonymized dataset.',
+    features: ['CS501 Mid', 'CS501 Quiz', 'CS502 Mid', 'CS502 Quiz', 'CS503 Mid', 'CS503 Quiz',
+               'CS504 Mid', 'CS504 Quiz', 'CS501 Lab', 'CS502 Lab', 'CS505 Lab', 'CS506 Lab',
+               'CS507 Termwork', 'CS508 Lab'],
+    units: ['/20', '/10', '/20', '/10', '/20', '/10', '/20', '/10', '/20', '/20', '/20', '/20', '/100', '/50'],
+    classes: ['High', 'Average', 'At-Risk'],
+    classColors: ['var(--accent)', 'var(--blue)', 'var(--danger)'],
+    get X() { return window.STUDENT_X; },
+    get y() { return window.STUDENT_Y; },
+    defaultK: 5,
+    bestResult: '66.69% (CS-LLN) · LR 69.48% (real study)',
   },
 };

@@ -64,6 +64,13 @@
         </svg>
         PIPELINE
       </button>
+      <button class="nav-btn" data-page="student">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1.5 L13 4.5 L7 7.5 L1 4.5 Z" fill="currentColor"/>
+          <path d="M3.5 6 v3 c0 1 7 1 7 0 v-3" stroke="currentColor" stroke-width="1.1" fill="none"/>
+        </svg>
+        STUDENT STUDY
+      </button>
       <button class="nav-btn" data-page="about">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.5"/>
@@ -519,6 +526,209 @@
       </div>
     </div><!-- /pipeline -->
 
+    <!-- ══ STUDENT STUDY PAGE ══ -->
+    <div id="page-student" class="page">
+
+      <div class="page-header">
+        <div class="page-header__eyebrow">REAL-WORLD VALIDATION · COMPLETED STUDY</div>
+        <div class="inspector-title-row">
+          <span class="inspector-title-cs" style="color:var(--accent);">STUDENT</span>
+          <span class="inspector-title-name" style="color:var(--text-primary);">Performance</span>
+          <span class="badge badge--accent">LIVE MODEL</span>
+        </div>
+        <div class="page-header__sub">
+          CS-LLN applied to the sessional (internal-assessment) marks of <strong>213 Computer Science
+          undergraduates at LNCT Bhopal</strong>, predicting each student's final performance band from
+          mid-sem, quiz, and practical-lab marks. This validates the method on messy, real institutional
+          data — not just clean UCI benchmarks.
+        </div>
+      </div>
+
+      <!-- Stat row -->
+      <div class="stat-row stat-row--4">
+        <div class="stat-card">
+          <div class="stat-card__label">STUDENTS (N)</div>
+          <div class="stat-card__value">213</div>
+          <div class="stat-card__sub">CSE · LNCT BHOPAL</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">SESSIONAL FEATURES</div>
+          <div class="stat-card__value">14</div>
+          <div class="stat-card__sub">MID · QUIZ · PRACTICAL</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">PERFORMANCE CLASSES</div>
+          <div class="stat-card__value">3</div>
+          <div class="stat-card__sub">HIGH · AVERAGE · AT-RISK</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__label">CS-LLN ACCURACY</div>
+          <div class="stat-card__value">66.69<span style="font-size:16px">%</span></div>
+          <div class="stat-card__sub">+6.13pp vs NAIVE BAYES</div>
+        </div>
+      </div>
+
+      <!-- Data honesty note -->
+      <div class="card" style="border-color:rgba(var(--blue-rgb),0.35);">
+        <div style="font-family:var(--font-ui);font-size:13.5px;color:var(--text-secondary);line-height:1.7;">
+          <span style="color:var(--blue);font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.06em;">DATA NOTE&nbsp;&nbsp;</span>
+          The <strong>headline numbers on this page</strong> (accuracy table, top-pair table) come from the
+          <strong>real, anonymized</strong> student dataset used in the paper. The <strong>live predictor
+          below</strong> trains in your browser on a <strong>seeded synthetic proxy</strong> that reproduces
+          the study's class-conditional correlation-shift structure — the raw student marks stay private. This
+          is the same honesty policy the site uses for the Wine and Breast-Cancer live demos.
+        </div>
+      </div>
+
+      <!-- Motivation -->
+      <div class="two-col">
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">WHY THIS DATASET BREAKS NAIVE BAYES</span>
+            <span class="badge badge--purple">THE WITHDRAWAL SPIRAL</span>
+          </div>
+          <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.75;">
+            Study habits don't fail independently. A student who starts slipping in theory mid-sems tends,
+            <em>at the same time</em>, to do worse in quizzes, skip practical classes, and stop submitting
+            lab term-work — what Tinto's model of student attrition calls the
+            <span style="color:var(--accent)">withdrawal spiral</span>.
+            <br><br>
+            That produces a <strong>class-specific</strong> coupling: among <span style="color:var(--danger)">at-risk</span>
+            students, quiz marks and practical marks are strongly correlated (both collapse together); among
+            <span style="color:var(--accent)">high performers</span> the same pair is decoupled (uniformly good).
+            Naive Bayes, which assumes features are independent within each class, is structurally blind to this
+            shift. CS-LLN screens for exactly these <span style="color:var(--accent);font-family:var(--font-mono)">ΔR<sub>ij</sub></span>
+            pairs and hands them to logistic regression as product features — turning a blind spot into an
+            early-warning signal.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">CLASS DEFINITION (BY CGPA)</span>
+            <span class="badge badge--muted">N = 213</span>
+          </div>
+          <div class="about-row"><span class="about-row__key" style="color:var(--accent)">HIGH PERFORMERS</span><span class="about-row__val">CGPA ≥ 7.8 · 69 students</span></div>
+          <div class="about-row"><span class="about-row__key" style="color:var(--blue)">AVERAGE PERFORMERS</span><span class="about-row__val">7.0 ≤ CGPA &lt; 7.8 · 94 students</span></div>
+          <div class="about-row"><span class="about-row__key" style="color:var(--danger)">AT-RISK STUDENTS</span><span class="about-row__val">CGPA &lt; 7.0 · 50 students</span></div>
+          <div class="divider"></div>
+          <div class="panel-header" style="margin-top:4px;">
+            <span class="panel-title">PIPELINE ON THIS DATA</span>
+          </div>
+          <div class="about-row"><span class="about-row__key">STANDARDISE</span><span class="about-row__val">z-score marks (train folds only)</span></div>
+          <div class="about-row"><span class="about-row__key">SCREEN ΔR<sub>ij</sub></span><span class="about-row__val">rank 91 pairs by shift</span></div>
+          <div class="about-row"><span class="about-row__key">SELECT k</span><span class="about-row__val--accent about-row__val">k = 5 (inner CV)</span></div>
+          <div class="about-row"><span class="about-row__key">ENRICH + LR</span><span class="about-row__val">14 → 19 features → L2-LR</span></div>
+          <div class="about-row"><span class="about-row__key">EVALUATE</span><span class="about-row__val">5-fold stratified CV</span></div>
+        </div>
+      </div>
+
+      <!-- LIVE PREDICTOR -->
+      <div class="page-header" style="margin-top:8px;">
+        <div class="page-header__eyebrow">INTERACTIVE</div>
+        <div class="page-header__title">LIVE EARLY-WARNING PREDICTOR</div>
+        <div class="page-header__sub">
+          A CS-LLN model trained live in your browser on the seeded student proxy. Move the sliders to enter a
+          student's key sessional marks and watch the predicted performance band update in real time. Unset
+          features are held at the cohort average.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">KEY SESSIONAL MARKS</span>
+            <span class="badge badge--accent">LIVE</span>
+          </div>
+          <div class="feature-sliders" id="stu-sliders">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);padding:12px 0;">LOADING MODEL...</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">PREDICTED PERFORMANCE BAND</span>
+              <span class="badge badge--accent">CS-LLN</span>
+            </div>
+            <div id="stu-result">
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">COMPUTING...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="panel-header">
+              <span class="panel-title">LIVE ΔR<sub>ij</sub> — SELECTED PAIRS</span>
+              <span class="badge badge--muted">TOP-k</span>
+            </div>
+            <div id="stu-live-pairs">
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);">COMPUTING...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTS TABLE -->
+      <div class="card card--flush">
+        <div style="padding:16px 20px 0;">
+          <div class="panel-header">
+            <span class="panel-title">5-FOLD CROSS-VALIDATION RESULTS — REAL DATASET</span>
+            <span class="badge badge--muted">N=213, d=14, C=3</span>
+          </div>
+          <div class="bench-note" style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);margin-bottom:12px;letter-spacing:0.04em;">
+            CS-LLN corrects Naive Bayes' calibration (log-loss 1.87 → 0.78, 2.40× better) and beats both tree ensembles.
+            The discriminative linear baselines (LR, SVM, LDA) lead by a small margin — CS-LLN is competitive while staying interpretable.
+          </div>
+        </div>
+        <div id="stu-results-table" style="padding:0 0 4px;overflow-x:auto;"></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">ACCURACY — ALL MODELS</span>
+            <span class="badge badge--muted">5-FOLD CV</span>
+          </div>
+          <div id="stu-acc-bars"></div>
+        </div>
+
+        <div class="card">
+          <div class="panel-header">
+            <span class="panel-title">LOG-LOSS: CS-LLN vs NAIVE BAYES</span>
+            <span class="badge badge--accent">2.40× BETTER</span>
+          </div>
+          <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.75;">
+            The accuracy gain over Gaussian Naive Bayes (+6.13pp) is real, but the bigger story is
+            <span style="color:var(--accent)">calibration</span>. GNB's log-loss on this data is a poor
+            <span style="font-family:var(--font-mono)">1.8669</span> — it is confidently wrong about many
+            students because it double-counts the coupled quiz/practical marks. Adding just five
+            correlation-shifting product terms drops the log-loss to
+            <span style="font-family:var(--font-mono);color:var(--accent)">0.7768</span>, meaning CS-LLN's
+            probability estimates of who is at risk are far more trustworthy — the property that matters most
+            for an early-warning tool.
+          </div>
+        </div>
+      </div>
+
+      <!-- TOP PAIRS -->
+      <div class="card">
+        <div class="panel-header">
+          <span class="panel-title">TOP-5 CORRELATION-SHIFTING PAIRS — EDUCATIONAL INTERPRETATION</span>
+          <span class="badge badge--accent">ΔR<sub>ij</sub> · REAL DATA</span>
+        </div>
+        <div id="stu-pairs"></div>
+        <div class="divider"></div>
+        <div style="font-family:var(--font-ui);font-size:14px;color:var(--text-secondary);line-height:1.75;">
+          The ranking is dominated by pairs involving <span style="color:var(--accent)">CS503 quiz</span> marks
+          coupled with <span style="color:var(--accent)">practical lab work</span>. These are precisely the
+          relationships the withdrawal-spiral theory predicts: continuous-assessment engagement (quizzes) and
+          hands-on engagement (labs) rise and fall together for at-risk students, but move independently for
+          high performers. CS-LLN discovers this from marks alone — no survey, no manual feature engineering.
+        </div>
+      </div>
+
+    </div><!-- /student -->
+
     <!-- ══ ABOUT PAGE ══ -->
     <div id="page-about" class="page">
 
@@ -586,19 +796,21 @@
 
           <div class="card">
             <div class="panel-header">
-              <span class="panel-title">PLANNED EXTENSION</span>
-              <span class="badge badge--purple">IN PROGRESS</span>
+              <span class="panel-title">REAL-WORLD VALIDATION</span>
+              <span class="badge badge--accent">COMPLETED</span>
             </div>
             <div style="font-family:var(--font-ui);font-size:15px;color:var(--text-secondary);line-height:1.75;margin-bottom:12px;">
-              Real-world validation on a <span style="color:var(--accent)">student academic performance dataset</span>
-              collected via anonymous survey at LNCT Bhopal. 20 features, 3 performance classes (High / Average / At-Risk), target 200–400 responses.
+              CS-LLN was validated on a real <span style="color:var(--accent)">student academic performance dataset</span>
+              of 213 CSE undergraduates at LNCT Bhopal, using sessional mid-sem, quiz, and practical-lab marks to
+              predict final CGPA band. See the <span style="color:var(--accent)">STUDENT STUDY</span> tab for the live
+              model, results, and top correlation-shifting pairs.
             </div>
             <div>
-              <div class="about-row"><span class="about-row__key">FEATURES</span><span class="about-row__val">20 (survey, Likert + binary)</span></div>
-              <div class="about-row"><span class="about-row__key">CLASSES</span><span class="about-row__val">3 (CGPA bands)</span></div>
-              <div class="about-row"><span class="about-row__key">TARGET N</span><span class="about-row__val">200–400 responses</span></div>
-              <div class="about-row"><span class="about-row__key">TOP EXPECTED PAIR</span><span class="about-row__val--accent about-row__val">Attendance × Submission (ΔR≈0.40)</span></div>
-              <div class="about-row"><span class="about-row__key">HYPOTHESIS</span><span class="about-row__val">Withdrawal spiral → high ΔR</span></div>
+              <div class="about-row"><span class="about-row__key">DATASET</span><span class="about-row__val">N=213, d=14, C=3 (real, anonymized)</span></div>
+              <div class="about-row"><span class="about-row__key">CS-LLN ACCURACY</span><span class="about-row__val--accent about-row__val">66.69% (k=5)</span></div>
+              <div class="about-row"><span class="about-row__key">vs. GAUSSIAN NB</span><span class="about-row__val">+6.13pp · log-loss 2.40× ↓</span></div>
+              <div class="about-row"><span class="about-row__key">TOP PAIR</span><span class="about-row__val--accent about-row__val">CS503 quiz × CS502 lab (ΔR=0.45)</span></div>
+              <div class="about-row"><span class="about-row__key">MECHANISM</span><span class="about-row__val">Withdrawal spiral → high ΔR</span></div>
             </div>
           </div>
 
