@@ -6,7 +6,7 @@
 ![No build step](https://img.shields.io/badge/build-none-informational?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-blue?style=flat-square)
 
-![CS-LLN animated architecture banner](architecture-diagram.gif)
+![CS-LLN animated architecture banner](diagram.gif)
 <p align="center"><sub>Animated pipeline diagram, source in <a href="architecture-diagram.html"><code>architecture-diagram.html</code></a>, recorded to GIF</sub></p>
 
 > "Context-Shift Interaction Screening for Feature-Enriched Classification: A Sparse, Closed-Form Approach Beyond the Naive Independence Assumption"
@@ -260,6 +260,7 @@ CS-LLN/
 ├── data.js                   # UCI dataset loaders - must load before app.js
 ├── app.js                    # CS-LLN pipeline (correlations → ΔR → selection → LR) + all rendering
 ├── architecture-diagram.html # standalone animated pipeline diagram, source for the banner GIF
+├── diagram.gif               # recorded banner animation used at the top of this README
 └── README.md
 ```
 
@@ -267,4 +268,4 @@ CS-LLN/
 
 ## Author
 
-**Atharv Khare** - CSE, LNCT Bhopal, India
+**Atharv Khare** 

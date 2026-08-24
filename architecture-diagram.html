@@ -27,8 +27,8 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{
     background:var(--bg);
-    width:1800px;
-    height:620px;
+    width:1340px;
+    height:900px;
     overflow:hidden;
     font-family:var(--font-ui);
     color:var(--text);
@@ -44,9 +44,9 @@
   }
   .bg-sweep{
     position:absolute; inset:0;
-    background:linear-gradient(100deg, transparent 40%, rgba(255,107,107,.06) 48%, rgba(255,214,102,.10) 50%, rgba(255,107,107,.06) 52%, transparent 60%);
-    background-size:300% 100%;
-    animation: sweep 7s linear infinite;
+    background:linear-gradient(115deg, transparent 38%, rgba(255,107,107,.06) 47%, rgba(255,214,102,.11) 50%, rgba(255,107,107,.06) 53%, transparent 62%);
+    background-size:300% 300%;
+    animation: sweep 8s linear infinite;
     mix-blend-mode:screen;
   }
   @keyframes sweep{
@@ -55,38 +55,39 @@
   }
   .bg-vignette{
     position:absolute; inset:0;
-    background: radial-gradient(ellipse at center, transparent 45%, var(--bg) 96%);
+    background: radial-gradient(ellipse at center, transparent 42%, var(--bg) 96%);
   }
 
   .stage{
     position:relative;
-    width:1800px; height:620px;
+    width:1340px; height:900px;
   }
 
   /* ---------- header ---------- */
   .header{
     position:absolute; top:0; left:0; right:0;
     display:flex; align-items:flex-start; justify-content:space-between;
-    padding:36px 56px 0 56px;
+    padding:44px 60px 0 60px;
     z-index:5;
   }
-  .brand{ display:flex; flex-direction:column; gap:6px; }
+  .brand{ display:flex; flex-direction:column; gap:9px; }
   .brand__mark{
-    font-family:var(--font-mono); font-weight:700; font-size:34px; letter-spacing:1px;
+    font-family:var(--font-mono); font-weight:700; font-size:40px; letter-spacing:1px;
     background:linear-gradient(90deg,var(--yellow),var(--red));
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    text-shadow:0 0 34px var(--yellow-glow);
+    text-shadow:0 0 38px var(--yellow-glow);
   }
   .brand__sub{
-    font-family:var(--font-mono); font-size:12.5px; letter-spacing:2.5px; color:var(--text-muted);
+    font-family:var(--font-mono); font-size:13px; letter-spacing:3px; color:var(--text-muted);
     text-transform:uppercase;
   }
   .legend{
     display:flex; align-items:center; gap:10px;
-    font-family:var(--font-mono); font-size:12px; letter-spacing:1.5px; color:var(--text-mid);
+    font-family:var(--font-mono); font-size:12px; letter-spacing:1.6px; color:var(--text-mid);
     text-transform:uppercase;
     border:2px solid var(--border); border-radius:999px; padding:8px 18px 8px 14px;
     background:rgba(255,255,255,.02);
+    margin-top:8px;
   }
   .legend__dot{
     width:9px; height:9px; border-radius:50%;
@@ -102,109 +103,118 @@
   /* ---------- flow svg ---------- */
   svg.flow{
     position:absolute; top:0; left:0;
-    width:1800px; height:620px;
+    width:1340px; height:900px;
     z-index:2;
     overflow:visible;
   }
-  .flow-path{
+  .edge{
     fill:none;
     stroke:url(#pathGrad);
-    stroke-width:2.5;
-    stroke-dasharray: 3 10;
+    stroke-width:4;
     stroke-linecap:round;
-    opacity:.55;
-    animation: dashmove 2.4s linear infinite;
+    opacity:.9;
+  }
+  .edge-head{
+    fill:none;
+    stroke:none;
+    marker-end:url(#arrow);
+  }
+  .edge-glow{
+    fill:none;
+    stroke:url(#pathGrad);
+    stroke-width:12;
+    stroke-linecap:round;
+    opacity:.14;
+    filter:blur(3px);
+  }
+  .edge-dash{
+    fill:none;
+    stroke:#0a0a0c;
+    stroke-width:4.5;
+    stroke-linecap:butt;
+    stroke-dasharray: 2 12;
+    opacity:.85;
+    animation: dashmove 1.2s linear infinite;
   }
   @keyframes dashmove{
-    to{ stroke-dashoffset:-130; }
+    to{ stroke-dashoffset:-42; }
   }
   .packet{
-    filter:drop-shadow(0 0 8px var(--yellow-glow)) drop-shadow(0 0 14px var(--red-glow));
+    filter:drop-shadow(0 0 8px var(--yellow-glow)) drop-shadow(0 0 15px var(--red-glow));
   }
 
   /* ---------- nodes ---------- */
   .node{
     position:absolute;
-    width:196px;
+    width:206px;
     transform:translate(-50%,-50%);
     z-index:4;
   }
   .node__card{
     position:relative;
-    background:linear-gradient(160deg, var(--bg-node-2), var(--bg-node));
-    border-radius:16px;
-    padding:16px 16px 14px 16px;
+    background:linear-gradient(158deg, var(--bg-node-2), var(--bg-node));
+    border-radius:18px;
+    padding:18px 16px 15px 16px;
     text-align:center;
-    box-shadow: 0 10px 28px rgba(0,0,0,.55);
-    animation: nodeIdle 4s ease-in-out infinite;
+    box-shadow: 0 12px 30px rgba(0,0,0,.6);
   }
-  .node:nth-child(odd) .node__card{ border:3.5px solid var(--yellow); }
-  .node:nth-child(even) .node__card{ border:3.5px solid var(--red); }
+  .node.y .node__card{ border:4px solid var(--yellow); }
+  .node.r .node__card{ border:4px solid var(--red); }
 
-  @keyframes nodeIdle{
-    0%,100%{ box-shadow:0 10px 28px rgba(0,0,0,.55); }
-    50%{ box-shadow:0 10px 28px rgba(0,0,0,.55), 0 0 0 0 transparent; }
-  }
-
-  .node.active .node__card{
-    animation: nodeActive 1.15s ease-out 1;
-  }
+  .node.active .node__card{ animation: nodeActive 1.15s ease-out 1; }
   @keyframes nodeActive{
     0%{ transform:scale(1); }
-    30%{ transform:scale(1.08); }
+    32%{ transform:scale(1.08); }
     100%{ transform:scale(1); }
   }
-  .node:nth-child(odd).active .node__card{
-    box-shadow: 0 10px 28px rgba(0,0,0,.55), 0 0 0 3px var(--yellow-glow), 0 0 46px var(--yellow-glow);
+  .node.y.active .node__card{
+    box-shadow: 0 12px 30px rgba(0,0,0,.6), 0 0 0 3px var(--yellow-glow), 0 0 50px var(--yellow-glow);
     border-color: var(--yellow-2);
   }
-  .node:nth-child(even).active .node__card{
-    box-shadow: 0 10px 28px rgba(0,0,0,.55), 0 0 0 3px var(--red-glow), 0 0 46px var(--red-glow);
+  .node.r.active .node__card{
+    box-shadow: 0 12px 30px rgba(0,0,0,.6), 0 0 0 3px var(--red-glow), 0 0 50px var(--red-glow);
     border-color: var(--red-2);
   }
 
   .node__step{
-    position:absolute; top:-14px; left:-14px;
-    width:30px; height:30px; border-radius:50%;
+    position:absolute; top:-16px; left:-16px;
+    width:32px; height:32px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     font-family:var(--font-mono); font-weight:700; font-size:13px;
     background:var(--bg);
-    color:var(--text);
   }
-  .node:nth-child(odd) .node__step{ border:3px solid var(--yellow); color:var(--yellow-2); }
-  .node:nth-child(even) .node__step{ border:3px solid var(--red); color:var(--red-2); }
+  .node.y .node__step{ border:3px solid var(--yellow); color:var(--yellow-2); }
+  .node.r .node__step{ border:3px solid var(--red); color:var(--red-2); }
 
   .node__glyph{
-    font-family:var(--font-mono); font-weight:700; font-size:26px;
+    font-family:var(--font-mono); font-weight:700; font-size:27px;
     margin-bottom:8px;
+    white-space:nowrap;
   }
-  .node:nth-child(odd) .node__glyph{ color:var(--yellow); text-shadow:0 0 18px var(--yellow-glow); }
-  .node:nth-child(even) .node__glyph{ color:var(--red); text-shadow:0 0 18px var(--red-glow); }
+  .node.y .node__glyph{ color:var(--yellow); text-shadow:0 0 20px var(--yellow-glow); }
+  .node.r .node__glyph{ color:var(--red); text-shadow:0 0 20px var(--red-glow); }
 
   .node__title{
     font-family:var(--font-ui); font-weight:700; font-size:13.5px;
-    letter-spacing:.4px;
-    color:var(--text);
-    margin-bottom:4px;
+    letter-spacing:.3px; color:var(--text); margin-bottom:5px;
   }
   .node__sub{
     font-family:var(--font-mono); font-size:10.5px;
-    color:var(--text-muted);
-    line-height:1.5;
+    color:var(--text-muted); line-height:1.5;
   }
 
   /* ---------- footer caption ---------- */
   .footer{
-    position:absolute; bottom:30px; left:0; right:0;
-    display:flex; align-items:center; justify-content:center; gap:14px;
+    position:absolute; bottom:52px; left:0; right:0;
+    display:flex; align-items:center; justify-content:center; gap:12px;
     z-index:5;
   }
   .footer__pill{
-    font-family:var(--font-mono); font-size:12px; letter-spacing:1.5px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:1.6px;
     color:var(--text-mid);
     border:2px solid var(--border);
     border-radius:999px;
-    padding:8px 16px;
+    padding:9px 20px;
     background:rgba(255,255,255,.02);
   }
   .footer__pill b{ color:var(--yellow); }
@@ -228,9 +238,9 @@
 
   <svg class="flow" id="flowSvg">
     <defs>
-      <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#FFD666"/>
-        <stop offset="50%" stop-color="#FF9B8A"/>
+        <stop offset="50%" stop-color="#FFB37A"/>
         <stop offset="100%" stop-color="#FF6B6B"/>
       </linearGradient>
       <radialGradient id="packetGrad">
@@ -238,47 +248,60 @@
         <stop offset="55%" stop-color="#FFD666"/>
         <stop offset="100%" stop-color="#FF6B6B"/>
       </radialGradient>
+      <!-- userSpaceOnUse keeps the head a fixed 15px regardless of stroke-width,
+           refX=9 anchors its tip exactly on the path's end point -->
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+              markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15"
+              orient="auto">
+        <path d="M0.5,1.5 L9.5,5 L0.5,8.5 z" fill="#FFB37A"/>
+      </marker>
     </defs>
-    <path class="flow-path" id="flowPath" d=""></path>
+    <g id="edges"></g>
     <g id="packets"></g>
   </svg>
 
   <div id="nodes"></div>
 
   <div class="footer">
-    <div class="footer__pill">RAW <b>X</b> &rarr; STANDARDISE &rarr; CLASS CORR <b>R(c)</b></div>
-    <div class="footer__pill">&Delta;R<sub>ij</sub> SCORE &rarr; SPARSE TOP&#8209;k &rarr; ENRICH <b class="r">x&middot;x</b></div>
-    <div class="footer__pill">L2 LOGISTIC REG &rarr; PREDICTION <b class="r">&#375;</b></div>
+    <div class="footer__pill">SCREEN <b>&Delta;R</b><sub>ij</sub> &rarr; SELECT TOP&#8209;<b>k</b> &rarr; ENRICH <b class="r">x&middot;x</b> &rarr; CLASSIFY</div>
+    <div class="footer__pill">CLOSED&#8209;FORM SCREENING &middot; NO GRADIENTS</div>
   </div>
 </div>
 
 <script>
   // ---- pipeline definition -------------------------------------------------
   const STEPS = [
-    { glyph:'X',      title:'RAW FEATURES',        sub:'X &isin; &#8477;&#7495;'                       },
-    { glyph:'&mu;&sigma;', title:'STANDARDISE',    sub:'&mu;=0, &sigma;=1 (train fold)'          },
-    { glyph:'R(c)',   title:'CLASS CORRELATIONS',  sub:'Pearson d&times;d per class'              },
-    { glyph:'&Delta;R', title:'CONTEXT&#8209;SHIFT SCORE', sub:'&Delta;R&#7522;&#7580; divergence across C'   },
-    { glyph:'&Omega;&#8342;', title:'SPARSE TOP&#8209;k SELECT', sub:'rank &amp; keep top&#8209;k pairs'   },
-    { glyph:'&times;', title:'FEATURE ENRICHMENT', sub:'append x&#7522;&middot;x&#7580; terms'         },
-    { glyph:'&sum;',   title:'L2 LOGISTIC REG.',   sub:'train on enriched vector'               },
-    { glyph:'&#375;',  title:'PREDICTION',         sub:'class probability output'               },
+    { glyph:'X',              title:'RAW FEATURES',              sub:'X &isin; &#8477;&#7495;'                     },
+    { glyph:'&mu;&sigma;',    title:'STANDARDISE',               sub:'&mu;=0, &sigma;=1 (train fold)'              },
+    { glyph:'R(c)',           title:'CLASS CORRELATIONS',        sub:'Pearson d&times;d per class'                 },
+    { glyph:'&Delta;R',       title:'CONTEXT&#8209;SHIFT SCORE', sub:'&Delta;R&#7522;&#7580; divergence across C'  },
+    { glyph:'&Omega;&#8342;', title:'SPARSE TOP&#8209;k SELECT', sub:'rank &amp; keep top&#8209;k pairs'           },
+    { glyph:'&times;',        title:'FEATURE ENRICHMENT',        sub:'append x&#7522;&middot;x&#7580; terms'       },
+    { glyph:'&sum;',          title:'L2 LOGISTIC REG.',          sub:'train on enriched vector'                    },
+    { glyph:'&#375;',         title:'PREDICTION',                sub:'class probability output'                    },
   ];
 
-  const W = 1800, H = 620;
-  const xs = []; const ys = [];
-  const marginX = 150;
-  const usableW = W - marginX*2;
-  for (let i=0;i<STEPS.length;i++){
-    xs.push(marginX + (usableW/(STEPS.length-1))*i);
-    ys.push(i % 2 === 0 ? 300 : 400);
-  }
+  // ---- serpentine layout: 4 per row, row 2 flows right-to-left -------------
+  const PER_ROW   = 4;
+  const COL_X     = [200, 495, 790, 1085];
+  const ROW_Y     = [330, 605];
+  const HALF_W    = 114;   // half node width (103) + 11px breathing gap, trims edge ends
+  const LOOP_OUT  = 145;   // how far the wrap curve bows past the last column
 
-  // ---- render nodes ----------------------------------------------------
+  const xs = [], ys = [];
+  STEPS.forEach((_, i) => {
+    const row = Math.floor(i / PER_ROW);
+    const idx = i % PER_ROW;
+    const col = (row % 2 === 0) ? idx : (PER_ROW - 1 - idx); // serpentine
+    xs.push(COL_X[col]);
+    ys.push(ROW_Y[row]);
+  });
+
+  // ---- render nodes ---------------------------------------------------
   const nodesEl = document.getElementById('nodes');
   STEPS.forEach((s,i)=>{
     const el = document.createElement('div');
-    el.className = 'node';
+    el.className = 'node ' + (i % 2 === 0 ? 'y' : 'r');
     el.style.left = xs[i]+'px';
     el.style.top  = ys[i]+'px';
     el.innerHTML = `
@@ -291,36 +314,76 @@
     nodesEl.appendChild(el);
   });
 
-  // ---- build smooth flow path through node centers ----------------------
-  function buildPath(pts){
-    let d = `M ${pts[0][0]},${pts[0][1]}`;
-    for (let i=0;i<pts.length-1;i++){
-      const [x1,y1] = pts[i];
-      const [x2,y2] = pts[i+1];
-      const dx = (x2-x1)/2;
-      d += ` C ${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
-    }
-    return d;
-  }
-  const pts = xs.map((x,i)=>[x, ys[i]]);
-  const pathData = buildPath(pts);
-  document.getElementById('flowPath').setAttribute('d', pathData);
+  // ---- edge geometry ---------------------------------------------------
+  // Same-row hops are gently bowed horizontal arrows.
+  // The row-to-row hop bows out to the right and drops down (serpentine turn).
+  function segPath(i, trim){
+    const x1 = xs[i],   y1 = ys[i];
+    const x2 = xs[i+1], y2 = ys[i+1];
+    const t  = trim ? HALF_W : 0;
 
-  // ---- traveling packets along the path (offset-path) -------------------
+    if (y1 === y2){
+      const dir = x2 > x1 ? 1 : -1;
+      const sx  = x1 + dir*t;
+      const ex  = x2 - dir*t;
+      const midX  = (sx + ex) / 2;
+      const bulge = (i % 2 === 0) ? -18 : 18;
+      return `M ${sx},${y1} Q ${midX},${y1 + bulge} ${ex},${y2}`;
+    }
+    // wrap: leave right side of node i, arc down, re-enter right side of node i+1
+    const sx = x1 + t;
+    const ex = x2 + t;
+    const loopX = Math.max(x1, x2) + LOOP_OUT;
+    return `M ${sx},${y1} C ${loopX},${y1} ${loopX},${y2} ${ex},${y2}`;
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const edgesG = document.getElementById('edges');
+  for (let i = 0; i < STEPS.length - 1; i++){
+    const d = segPath(i, true);
+
+    // paint order matters: glow -> solid gradient -> moving beads -> arrowhead
+    const glow = document.createElementNS(NS,'path');
+    glow.setAttribute('d', d); glow.setAttribute('class','edge-glow');
+    edgesG.appendChild(glow);
+
+    const base = document.createElementNS(NS,'path');
+    base.setAttribute('d', d); base.setAttribute('class','edge');
+    edgesG.appendChild(base);
+
+    const dash = document.createElementNS(NS,'path');
+    dash.setAttribute('d', d); dash.setAttribute('class','edge-dash');
+    dash.style.animationDelay = (i * 0.12) + 's';
+    edgesG.appendChild(dash);
+
+    // arrowhead rides on its own invisible path, drawn last so the animated
+    // black beads can never cut a line through it
+    const head = document.createElementNS(NS,'path');
+    head.setAttribute('d', d); head.setAttribute('class','edge-head');
+    edgesG.appendChild(head);
+  }
+
+  // ---- one continuous center-to-center path for the traveling packets -----
+  let fullPath = `M ${xs[0]},${ys[0]}`;
+  for (let i = 0; i < STEPS.length - 1; i++){
+    fullPath += ' ' + segPath(i, false).replace(/^M [^ ]+ /, '');
+  }
+
   const packetsG = document.getElementById('packets');
   const N_PACKETS = 4;
-  const CYCLE = 8; // seconds for one full traverse
-  for (let i=0;i<N_PACKETS;i++){
-    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  const CYCLE = 7; // seconds for one full traverse
+  for (let i = 0; i < N_PACKETS; i++){
+    const dot = document.createElementNS(NS,'circle');
     dot.setAttribute('r', 7);
     dot.setAttribute('fill', 'url(#packetGrad)');
     dot.setAttribute('class','packet');
-    dot.style.offsetPath = `path('${pathData}')`;
+    dot.style.offsetPath   = `path('${fullPath}')`;
     dot.style.offsetRotate = '0deg';
-    dot.style.animation = `travel ${CYCLE}s linear infinite`;
+    dot.style.animation      = `travel ${CYCLE}s linear infinite`;
     dot.style.animationDelay = `${(i * CYCLE / N_PACKETS)}s`;
     packetsG.appendChild(dot);
   }
+
   const styleTag = document.createElement('style');
   styleTag.textContent = `
     @keyframes travel {
@@ -332,7 +395,7 @@
   `;
   document.head.appendChild(styleTag);
 
-  // ---- stagger node "active" pulse to match packet arrival ---------------
+  // ---- stagger node activation to track the lead packet -------------------
   const nodeEls = document.querySelectorAll('.node');
   function runActivation(){
     nodeEls.forEach((el,i)=>{
