@@ -6,7 +6,9 @@
 ![No build step](https://img.shields.io/badge/build-none-informational?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/stack-HTML%2FCSS%2FJS-blue?style=flat-square)
 
-![CS-LLN animated architecture banner](diagram.gif)
+<p align="center">
+  <img src="diagram.gif" alt="CS-LLN animated architecture pipeline" width="100%" />
+</p>
 <p align="center"><sub>Animated pipeline diagram, source in <a href="architecture-diagram.html"><code>architecture-diagram.html</code></a>, recorded to GIF</sub></p>
 
 > "Context-Shift Interaction Screening for Feature-Enriched Classification: A Sparse, Closed-Form Approach Beyond the Naive Independence Assumption"
