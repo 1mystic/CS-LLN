@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CS-LLN — Architecture Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0c;
+    --bg-node:#161616;
+    --bg-node-2:#1c1c1c;
+    --border:#2a2a2a;
+    --text:#f5f5f5;
+    --text-mid:#b8b8b8;
+    --text-muted:#6e6e6e;
+    --yellow:#FFD666;
+    --yellow-2:#FFE9A8;
+    --red:#FF6B6B;
+    --red-2:#FF9B8A;
+    --yellow-glow:rgba(255,214,102,.55);
+    --red-glow:rgba(255,107,107,.55);
+    --font-mono:'Space Mono',monospace;
+    --font-ui:'DM Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    background:var(--bg);
+    width:1800px;
+    height:620px;
+    overflow:hidden;
+    font-family:var(--font-ui);
+    color:var(--text);
+  }
+
+  /* ---------- background texture ---------- */
+  .bg-grid{
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle, rgba(255,214,102,.10) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity:.5;
+  }
+  .bg-sweep{
+    position:absolute; inset:0;
+    background:linear-gradient(100deg, transparent 40%, rgba(255,107,107,.06) 48%, rgba(255,214,102,.10) 50%, rgba(255,107,107,.06) 52%, transparent 60%);
+    background-size:300% 100%;
+    animation: sweep 7s linear infinite;
+    mix-blend-mode:screen;
+  }
+  @keyframes sweep{
+    0%{ background-position: 200% 0; }
+    100%{ background-position: -200% 0; }
+  }
+  .bg-vignette{
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at center, transparent 45%, var(--bg) 96%);
+  }
+
+  .stage{
+    position:relative;
+    width:1800px; height:620px;
+  }
+
+  /* ---------- header ---------- */
+  .header{
+    position:absolute; top:0; left:0; right:0;
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:36px 56px 0 56px;
+    z-index:5;
+  }
+  .brand{ display:flex; flex-direction:column; gap:6px; }
+  .brand__mark{
+    font-family:var(--font-mono); font-weight:700; font-size:34px; letter-spacing:1px;
+    background:linear-gradient(90deg,var(--yellow),var(--red));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 34px var(--yellow-glow);
+  }
+  .brand__sub{
+    font-family:var(--font-mono); font-size:12.5px; letter-spacing:2.5px; color:var(--text-muted);
+    text-transform:uppercase;
+  }
+  .legend{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:1.5px; color:var(--text-mid);
+    text-transform:uppercase;
+    border:2px solid var(--border); border-radius:999px; padding:8px 18px 8px 14px;
+    background:rgba(255,255,255,.02);
+  }
+  .legend__dot{
+    width:9px; height:9px; border-radius:50%;
+    background:var(--yellow);
+    box-shadow:0 0 12px 3px var(--yellow-glow);
+    animation: dotpulse 1.4s ease-in-out infinite;
+  }
+  @keyframes dotpulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:.45; transform:scale(.7); }
+  }
+
+  /* ---------- flow svg ---------- */
+  svg.flow{
+    position:absolute; top:0; left:0;
+    width:1800px; height:620px;
+    z-index:2;
+    overflow:visible;
+  }
+  .flow-path{
+    fill:none;
+    stroke:url(#pathGrad);
+    stroke-width:2.5;
+    stroke-dasharray: 3 10;
+    stroke-linecap:round;
+    opacity:.55;
+    animation: dashmove 2.4s linear infinite;
+  }
+  @keyframes dashmove{
+    to{ stroke-dashoffset:-130; }
+  }
+  .packet{
+    filter:drop-shadow(0 0 8px var(--yellow-glow)) drop-shadow(0 0 14px var(--red-glow));
+  }
+
+  /* ---------- nodes ---------- */
+  .node{
+    position:absolute;
+    width:196px;
+    transform:translate(-50%,-50%);
+    z-index:4;
+  }
+  .node__card{
+    position:relative;
+    background:linear-gradient(160deg, var(--bg-node-2), var(--bg-node));
+    border-radius:16px;
+    padding:16px 16px 14px 16px;
+    text-align:center;
+    box-shadow: 0 10px 28px rgba(0,0,0,.55);
+    animation: nodeIdle 4s ease-in-out infinite;
+  }
+  .node:nth-child(odd) .node__card{ border:3.5px solid var(--yellow); }
+  .node:nth-child(even) .node__card{ border:3.5px solid var(--red); }
+
+  @keyframes nodeIdle{
+    0%,100%{ box-shadow:0 10px 28px rgba(0,0,0,.55); }
+    50%{ box-shadow:0 10px 28px rgba(0,0,0,.55), 0 0 0 0 transparent; }
+  }
+
+  .node.active .node__card{
+    animation: nodeActive 1.15s ease-out 1;
+  }
+  @keyframes nodeActive{
+    0%{ transform:scale(1); }
+    30%{ transform:scale(1.08); }
+    100%{ transform:scale(1); }
+  }
+  .node:nth-child(odd).active .node__card{
+    box-shadow: 0 10px 28px rgba(0,0,0,.55), 0 0 0 3px var(--yellow-glow), 0 0 46px var(--yellow-glow);
+    border-color: var(--yellow-2);
+  }
+  .node:nth-child(even).active .node__card{
+    box-shadow: 0 10px 28px rgba(0,0,0,.55), 0 0 0 3px var(--red-glow), 0 0 46px var(--red-glow);
+    border-color: var(--red-2);
+  }
+
+  .node__step{
+    position:absolute; top:-14px; left:-14px;
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:13px;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .node:nth-child(odd) .node__step{ border:3px solid var(--yellow); color:var(--yellow-2); }
+  .node:nth-child(even) .node__step{ border:3px solid var(--red); color:var(--red-2); }
+
+  .node__glyph{
+    font-family:var(--font-mono); font-weight:700; font-size:26px;
+    margin-bottom:8px;
+  }
+  .node:nth-child(odd) .node__glyph{ color:var(--yellow); text-shadow:0 0 18px var(--yellow-glow); }
+  .node:nth-child(even) .node__glyph{ color:var(--red); text-shadow:0 0 18px var(--red-glow); }
+
+  .node__title{
+    font-family:var(--font-ui); font-weight:700; font-size:13.5px;
+    letter-spacing:.4px;
+    color:var(--text);
+    margin-bottom:4px;
+  }
+  .node__sub{
+    font-family:var(--font-mono); font-size:10.5px;
+    color:var(--text-muted);
+    line-height:1.5;
+  }
+
+  /* ---------- footer caption ---------- */
+  .footer{
+    position:absolute; bottom:30px; left:0; right:0;
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    z-index:5;
+  }
+  .footer__pill{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:1.5px;
+    color:var(--text-mid);
+    border:2px solid var(--border);
+    border-radius:999px;
+    padding:8px 16px;
+    background:rgba(255,255,255,.02);
+  }
+  .footer__pill b{ color:var(--yellow); }
+  .footer__pill b.r{ color:var(--red); }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+  <div class="bg-grid"></div>
+  <div class="bg-sweep"></div>
+  <div class="bg-vignette"></div>
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand__mark">CS&#8209;LLN</div>
+      <div class="brand__sub">Context&#8209;Shift Log&#8209;Linear Network &middot; Live Architecture</div>
+    </div>
+    <div class="legend"><span class="legend__dot"></span> Signal Flow</div>
+  </div>
+
+  <svg class="flow" id="flowSvg">
+    <defs>
+      <linearGradient id="pathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#FFD666"/>
+        <stop offset="50%" stop-color="#FF9B8A"/>
+        <stop offset="100%" stop-color="#FF6B6B"/>
+      </linearGradient>
+      <radialGradient id="packetGrad">
+        <stop offset="0%" stop-color="#FFF3D0"/>
+        <stop offset="55%" stop-color="#FFD666"/>
+        <stop offset="100%" stop-color="#FF6B6B"/>
+      </radialGradient>
+    </defs>
+    <path class="flow-path" id="flowPath" d=""></path>
+    <g id="packets"></g>
+  </svg>
+
+  <div id="nodes"></div>
+
+  <div class="footer">
+    <div class="footer__pill">RAW <b>X</b> &rarr; STANDARDISE &rarr; CLASS CORR <b>R(c)</b></div>
+    <div class="footer__pill">&Delta;R<sub>ij</sub> SCORE &rarr; SPARSE TOP&#8209;k &rarr; ENRICH <b class="r">x&middot;x</b></div>
+    <div class="footer__pill">L2 LOGISTIC REG &rarr; PREDICTION <b class="r">&#375;</b></div>
+  </div>
+</div>
+
+<script>
+  // ---- pipeline definition -------------------------------------------------
+  const STEPS = [
+    { glyph:'X',      title:'RAW FEATURES',        sub:'X &isin; &#8477;&#7495;'                       },
+    { glyph:'&mu;&sigma;', title:'STANDARDISE',    sub:'&mu;=0, &sigma;=1 (train fold)'          },
+    { glyph:'R(c)',   title:'CLASS CORRELATIONS',  sub:'Pearson d&times;d per class'              },
+    { glyph:'&Delta;R', title:'CONTEXT&#8209;SHIFT SCORE', sub:'&Delta;R&#7522;&#7580; divergence across C'   },
+    { glyph:'&Omega;&#8342;', title:'SPARSE TOP&#8209;k SELECT', sub:'rank &amp; keep top&#8209;k pairs'   },
+    { glyph:'&times;', title:'FEATURE ENRICHMENT', sub:'append x&#7522;&middot;x&#7580; terms'         },
+    { glyph:'&sum;',   title:'L2 LOGISTIC REG.',   sub:'train on enriched vector'               },
+    { glyph:'&#375;',  title:'PREDICTION',         sub:'class probability output'               },
+  ];
+
+  const W = 1800, H = 620;
+  const xs = []; const ys = [];
+  const marginX = 150;
+  const usableW = W - marginX*2;
+  for (let i=0;i<STEPS.length;i++){
+    xs.push(marginX + (usableW/(STEPS.length-1))*i);
+    ys.push(i % 2 === 0 ? 300 : 400);
+  }
+
+  // ---- render nodes ----------------------------------------------------
+  const nodesEl = document.getElementById('nodes');
+  STEPS.forEach((s,i)=>{
+    const el = document.createElement('div');
+    el.className = 'node';
+    el.style.left = xs[i]+'px';
+    el.style.top  = ys[i]+'px';
+    el.innerHTML = `
+      <div class="node__card">
+        <div class="node__step">0${i+1}</div>
+        <div class="node__glyph">${s.glyph}</div>
+        <div class="node__title">${s.title}</div>
+        <div class="node__sub">${s.sub}</div>
+      </div>`;
+    nodesEl.appendChild(el);
+  });
+
+  // ---- build smooth flow path through node centers ----------------------
+  function buildPath(pts){
+    let d = `M ${pts[0][0]},${pts[0][1]}`;
+    for (let i=0;i<pts.length-1;i++){
+      const [x1,y1] = pts[i];
+      const [x2,y2] = pts[i+1];
+      const dx = (x2-x1)/2;
+      d += ` C ${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
+    }
+    return d;
+  }
+  const pts = xs.map((x,i)=>[x, ys[i]]);
+  const pathData = buildPath(pts);
+  document.getElementById('flowPath').setAttribute('d', pathData);
+
+  // ---- traveling packets along the path (offset-path) -------------------
+  const packetsG = document.getElementById('packets');
+  const N_PACKETS = 4;
+  const CYCLE = 8; // seconds for one full traverse
+  for (let i=0;i<N_PACKETS;i++){
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('r', 7);
+    dot.setAttribute('fill', 'url(#packetGrad)');
+    dot.setAttribute('class','packet');
+    dot.style.offsetPath = `path('${pathData}')`;
+    dot.style.offsetRotate = '0deg';
+    dot.style.animation = `travel ${CYCLE}s linear infinite`;
+    dot.style.animationDelay = `${(i * CYCLE / N_PACKETS)}s`;
+    packetsG.appendChild(dot);
+  }
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `
+    @keyframes travel {
+      0%   { offset-distance: 0%;   opacity: 0; }
+      4%   { opacity: 1; }
+      96%  { opacity: 1; }
+      100% { offset-distance: 100%; opacity: 0; }
+    }
+  `;
+  document.head.appendChild(styleTag);
+
+  // ---- stagger node "active" pulse to match packet arrival ---------------
+  const nodeEls = document.querySelectorAll('.node');
+  function runActivation(){
+    nodeEls.forEach((el,i)=>{
+      const delay = (i/(STEPS.length-1)) * CYCLE * 1000;
+      setTimeout(()=>{
+        el.classList.add('active');
+        setTimeout(()=> el.classList.remove('active'), 1150);
+      }, delay);
+    });
+  }
+  runActivation();
+  setInterval(runActivation, CYCLE*1000);
+</script>
+
+</body>
+</html>
